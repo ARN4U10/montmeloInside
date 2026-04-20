@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/nav/nav.jsx";
 import Mapa from "../mapa/mapa.jsx";
 import './home.css';
@@ -6,6 +7,7 @@ import './home.css';
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showMap, setShowMap] = useState(false);
+  const navigate = useNavigate();
 
   const quickServices = [
     { id: 1, name: 'Taxi', icon: '🚕', color: '#4CAF50' },
@@ -28,8 +30,8 @@ const Home = () => {
       {/* Banner Hero */}
       <div className="banner">
         <div className="banner-content">
-          <h1>Benvingut a la teva app de transport</h1>
-          <p>Troba el millor transport ràpidament</p>
+          <h1>Benvingut a montmeloInside</h1>
+          <p>Troba el millor cami per arribar al Circuit de Montmelo</p>
           <div className="search-container">
             <input
               type="text"
@@ -40,19 +42,6 @@ const Home = () => {
             />
             <button className="search-btn">🔍</button>
           </div>
-        </div>
-      </div>
-
-      {/* Accesos directos */}
-      <div className="quick-access">
-        <h2>Accés ràpid</h2>
-        <div className="quick-grid">
-          {quickServices.map((service) => (
-            <div key={service.id} className="quick-item" style={{ '--bg-color': service.color }}>
-              <div className="quick-icon">{service.icon}</div>
-              <span>{service.name}</span>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -72,24 +61,21 @@ const Home = () => {
       </div>
 
       {/* Mapa Section */}
-      <div className="map-section">
-        <div className="map-header">
-          <h2>Mapa en temps real</h2>
-          <button className="map-toggle" onClick={() => setShowMap(!showMap)}>
-            {showMap ? '📋 Llista' : '🗺️ Mapa'}
-          </button>
-        </div>
-        {showMap ? (
-          <Mapa />
-        ) : (
-          <div className="map-placeholder">
-            <div className="placeholder-content">
-              <div className="map-icon">🗺️</div>
-                <p>Clica "Mapa" per veure les rutes disponibles</p>
-            </div>
-          </div>
-        )}
+     <div className="map-section">
+    <div className="map-header">
+      <h2>Mapa en temps real</h2>
+    </div>
+
+    <div
+      className="map-preview"
+      onClick={() => navigate("/mapa")}
+    >
+      <div className="map-preview-inner">
+        🗺️
+        <p>Obrir mapa complet</p>
       </div>
+    </div>
+  </div>
 
       <Navbar />
     </div>

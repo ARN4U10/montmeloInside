@@ -438,3 +438,39 @@ input  { font-family: inherit; }
 .mc-search input::placeholder {
   color: var(--text3);
 }
+.map-preview {
+  height: 300px !important;
+  border-radius: 20px;
+  background-image: url("/public/images/mapa.jpg");
+
+  background-size: cover;
+  background-position: center;
+
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  position: relative;
+
+}
+
+.map-preview::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.6),
+    rgba(0,0,0,0.1)
+  );
+}
+
+.map-preview-inner {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: white;
+  z-index: 2;
+  font-weight: 600;
+}
