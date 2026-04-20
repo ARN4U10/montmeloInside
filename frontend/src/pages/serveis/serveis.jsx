@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Navbar from "../components/nav/nav.jsx";
 import "./serveis.css";
 
 const filters = ["Tots", "Lavabos", "Restauració", "Pàrquing"];
@@ -106,22 +107,7 @@ export default function Serveis() {
         </div>
       </main>
 
-      <nav className="bottom-nav">
-        <button className="nav-item">
-          <span>🗺️</span>
-          <small>Mapa</small>
-        </button>
-
-        <button className="nav-item active">
-          <span>◫</span>
-          <small>Serveis</small>
-        </button>
-
-        <button className="nav-item">
-          <span>👤</span>
-          <small>Perfil</small>
-        </button>
-      </nav>
+      <Navbar />
     </div>
   );
 }

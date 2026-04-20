@@ -1,4 +1,5 @@
 import "./destinacio.css";
+import Navbar from "../components/nav/nav.jsx";
 
 const categories = [
   { title: "Grades", icon: "🏟️", color: "red-card" },
@@ -63,20 +64,7 @@ export default function Destinacio() {
         </section>
       </main>
 
-      <nav className="bottom-nav">
-        <button className="nav-item active">
-          <span>📍</span>
-          <small>Mapa</small>
-        </button>
-        <button className="nav-item">
-          <span>🎫</span>
-          <small>Seients</small>
-        </button>
-        <button className="nav-item">
-          <span>👤</span>
-          <small>Perfil</small>
-        </button>
-      </nav>
+      <Navbar />
     </div>
   );
 }
