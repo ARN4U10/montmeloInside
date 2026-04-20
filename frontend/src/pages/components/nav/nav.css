@@ -3,70 +3,69 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 80px;
+  height: 75px; /* Altura ideal para pulgares */
   background: white;
   display: flex;
   justify-content: space-around;
   align-items: center;
   border-top: 1px solid #eee;
-  padding: 6px 0;
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom); /* Soporte para iPhone notch */
 }
 
-/* BOTÓN */
 .nav-item {
-  border: none;
-  background: transparent;
   display: flex;
+  flex: 1; /* Hace que todos midan lo mismo */
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  color: #d9d9d9;
+  color: #666; /* Color base si no usas variables */
   cursor: pointer;
-  flex: 1;
+  transition: all 0.2s ease;
+  height: 100%;
 }
 
-/* 🔥 CONTENEDOR FIJO PARA ICONOS */
-.nav-item img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  display: block;
+/* Iconos más grandes */
+.nav-item svg {
+  width: 26px; 
+  height: 26px;
 }
 
-/* opcional: fuerza alineación perfecta */
+/* Texto más grande y legible */
 .nav-item span {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
+  font-size: 11px;
+  font-weight: 600;
 }
 
-/* TEXTO */
-.nav-item small {
-  font-size: 12px;
-  text-align: center;
-}
-
-/* ACTIVO */
+/* Estado Activo */
 .nav-item.active {
   color: #ff1200;
 }
 
-/* toque móvil */
-.nav-item:active {
-  transform: scale(0.95);
+/* Punto indicador */
+.nav-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ff1200;
+  margin-top: 2px;
+  position: absolute;
+  bottom: 8px;
 }
 
-/* MOBILE */
+/* Efecto al tocar */
+.nav-item:active {
+  transform: scale(0.9);
+  opacity: 0.7;
+}
+
+/* Ajuste específico para móviles */
 @media (max-width: 480px) {
   .bottom-nav {
-    height: 90px;
+    height: 85px; 
   }
-
-  .nav-item img {
-    width: 36px;
-    height: 36px;
+  .nav-item span {
+    font-size: 12px;
   }
 }

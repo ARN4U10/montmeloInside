@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "./home.css";
+import "./mapa.css";
 import Navbar from "../components/nav/nav.jsx";
 
 // ── POIs ─────────────────────────────────────────────────────────────────
