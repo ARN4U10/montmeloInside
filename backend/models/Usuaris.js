@@ -36,12 +36,7 @@ const UsuariSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "UbicacioUsuari",
   },
-
-  esdeveniment: {
-    type: Schema.Types.ObjectId,
-    ref: "Esdeveniment",
-  },
-
+  
   // Seguridad
   token: String,
   resetPasswordToken: String,
