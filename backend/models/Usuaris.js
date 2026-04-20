@@ -8,7 +8,7 @@ const UsuariSchema = new Schema({
   contrasenya: { type: String, required: true },
 
   // Perfil
-  username: { type: String, unique: true, sparse: true },
+  username: { type: String, default: null },
   bio: { type: String, maxlength: 160 },
   imatge_perfil: { type: String }, // URL
   imatge_coberta: { type: String }, // opcional tipo banner

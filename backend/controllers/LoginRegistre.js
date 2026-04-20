@@ -21,6 +21,23 @@ export const registre = async (req, res) => {
       nom_complet,
       correu,
       contrasenya: hash,
+
+      username: null,
+      bio: "",
+      imatge_perfil: "",
+      imatge_coberta: "",
+      telefon: "",
+      data_naixement: null,
+      notificacions: {
+        email: true,
+        push: true
+      },
+      historial_navegacio: [],
+      ubicacioUsuari: null,
+      esdeveniment: null,
+      token: null,
+      resetPasswordToken: null,
+      resetPasswordExpires: null
     });
 
     const token = jwt.sign(

@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./regist.css";
-
 export default function Regist() {
   const [form, setForm] = useState({
     name: "",
@@ -8,6 +8,8 @@ export default function Regist() {
     password: "",
     confirmPassword: "",
   });
+  const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     setForm({
@@ -45,7 +47,7 @@ const handleSubmit = async (e) => {
 
   alert("Usuari creat correctament!");
 
-  window.location.href = "/login";
+  navigate("/login");
 };
 
   return (

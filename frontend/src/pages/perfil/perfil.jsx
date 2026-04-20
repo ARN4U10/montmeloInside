@@ -43,8 +43,20 @@ useEffect(() => {
 }, []);
 
   if (loading) {
-    return <div className="mobile-screen">Carregant perfil...</div>;
-  }
+  return (
+    <div className="loading-screen">
+      <img
+        src="/images/logo.png"
+        alt="logo"
+        className="loading-logo"
+      />
+
+      <div className="loading-spinner"></div>
+
+      <p className="loading-text">Carregant perfil...</p>
+    </div>
+  );
+}
 
   if (!usuari) {
     return <div className="mobile-screen">No s'ha pogut carregar el perfil</div>;
