@@ -18,4 +18,4 @@ const PreferitSchema = new Schema({
   data_afegit: { type: Date, default: Date.now }
 });
 
-export default mongoose.model("Preferit", PreferitSchema);
+export default mongoose.model("preferits", PreferitSchema);

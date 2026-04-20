@@ -20,4 +20,4 @@ const UbicacioUsuariSchema = new Schema({
   temps_arribada: Date
 });
 
-export default mongoose.model("UbicacioUsuari", UbicacioUsuariSchema);
+export default mongoose.model("ubicaciousuari", UbicacioUsuariSchema);

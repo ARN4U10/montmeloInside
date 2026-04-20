@@ -11,4 +11,4 @@ const UbicacioSchema = new Schema({
   tipus: String
 });
 
-export default mongoose.model("Ubicacio", UbicacioSchema);
+export default mongoose.model("ubicacions", UbicacioSchema);

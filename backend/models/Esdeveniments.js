@@ -23,4 +23,4 @@ const EsdevenimentSchema = new Schema({
   longitud: Number
 });
 
-export default mongoose.model("Esdeveniment", EsdevenimentSchema);
+export default mongoose.model("esdeveniments", EsdevenimentSchema);
