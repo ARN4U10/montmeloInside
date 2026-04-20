@@ -19,25 +19,33 @@ export default function Regist() {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
+  if (form.password !== form.confirmPassword) {
+    alert("Les contrasenyes no coincideixen");
+    return;
+  }
+
   const res = await fetch("http://localhost:3001/api/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(form),
+    body: JSON.stringify({
+      nom_complet: form.name,
+      correu: form.email,
+      contrasenya: form.password,
+    }),
   });
 
   const data = await res.json();
 
   if (!res.ok) {
-    console.log("ERROR:", data.message);
-    alert(data.message); // 👈 important
+    alert(data.message || "Error al registrar");
     return;
   }
 
-  console.log("OK:", data);
-  alert("Usuari creat! Ja pots iniciar sessió");
-  location.href = "/login";
+  alert("Usuari creat correctament!");
+
+  window.location.href = "/login";
 };
 
   return (

@@ -12,24 +12,40 @@ export default function Login() {
 
 const handleLogin = async () => {
   try {
+    const payload = {
+      email: form.email,
+      password: form.password,
+    };
+
+    console.log("LOGIN SEND:", payload);
+
     const res = await fetch("http://localhost:3001/api/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
+
     if (!res.ok) {
-      alert(data.message);
+      alert(data.message || "Error login");
       return;
     }
-    if (data.token) {
-      localStorage.setItem("token", data.token);
+
+    if (!data.token) {
+      alert("No s'ha rebut token");
+      return;
     }
+
+    localStorage.setItem("token", data.token);
+
     window.location.href = "/home";
 
   } catch (err) {
-    alert("Error de connexió amb el servidor");
+    console.error(err);
+    alert("Error de connexió");
   }
 };
   return (
