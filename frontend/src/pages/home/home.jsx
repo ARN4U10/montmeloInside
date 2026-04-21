@@ -15,15 +15,13 @@ const Home = () => {
     { id: 3, name: 'Moto', icon: '🏍️', color: '#FF9800' },
     { id: 4, name: 'Furgoneta', icon: '🚐', color: '#9C27B0' },
   ];
-
-  const services = [
-    { id: 1, name: 'Sol·licitar servei', icon: '📞', color: '#e21212' },
-    { id: 2, name: 'Historial viatges', icon: '📋', color: '#4e78ac' },
-    { id: 3, name: 'Pagaments', icon: '💳', color: '#28a745' },
-    { id: 4, name: 'Perfil', icon: '👤', color: '#6c757d' },
-    { id: 5, name: 'Suport', icon: '❓', color: '#ffc107' },
-    { id: 6, name: 'Configuració', icon: '⚙️', color: '#17a2b8' },
-  ];
+const services = [
+  { id: 1, name: 'Busca el teu servei', icon: '🛎️', color: '#e21212' },
+  { id: 2, name: 'Troba el Circuit', icon: '🏁', color: '#4e78ac' },
+  { id: 3, name: 'Busca la ubicació desitjada', icon: '📍', color: '#6c757d' },
+  { id: 4, name: 'Troba el teu esdeveniment', icon: '🎫', color: '#28a745' },
+  { id: 5, name: 'Perfil', icon: '👤', color: '#17a2b8' },
+];
 
   return (
     <div className="home-screen">
