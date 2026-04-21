@@ -38,27 +38,8 @@
   font-weight: 600;
 }
 
-/* Estado Activo */
-.nav-item.active {
-  color: #ff1200;
-}
 
-/* Punto indicador */
-.nav-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #ff1200;
-  margin-top: 2px;
-  position: absolute;
-  bottom: 8px;
-}
 
-/* Efecto al tocar */
-.nav-item:active {
-  transform: scale(0.9);
-  opacity: 0.7;
-}
 
 /* Ajuste específico para móviles */
 @media (max-width: 480px) {
