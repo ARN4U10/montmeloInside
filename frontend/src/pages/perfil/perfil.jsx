@@ -16,87 +16,117 @@ export default function Perfil() {
   const [loading, setLoading] = useState(true);
   const [form, setForm]       = useState({});
   const [saved, setSaved]     = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [bannerFile, setBannerFile] = useState(null);
 
   const inputAvatarRef = useRef();
   const inputBannerRef = useRef();
 
   useEffect(() => {
-    const fetchPerfil = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res   = await fetch("http://localhost:3001/api/perfil", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        setUsuari(data);
-        setForm({
-          nom_complet:    data.nom_complet    || "",
-          username:       data.username       || "",
-          bio:            data.bio            || "",
-          telefon:        data.telefon        || "",
-          imatge_perfil:  data.imatge_perfil  || "",
-          imatge_coberta: data.imatge_coberta || "",
-          data_naixement: data.data_naixement
-            ? new Date(data.data_naixement).toISOString().split("T")[0]
-            : "",
-          notificacions: {
-            email: data.notificacions?.email ?? true,
-            push:  data.notificacions?.push  ?? true,
-          },
-        });
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    const subirImagenes = async () => {
-        const token = localStorage.getItem("token");
+   const fetchPerfil = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
-        const formData = new FormData();
+    const res = await fetch("http://localhost:3001/api/perfil", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-        if (avatarFile) formData.append("avatar", avatarFile);
-        if (bannerFile) formData.append("banner", bannerFile);
+    const data = await res.json();
 
-        const res = await fetch("http://localhost:3001/api/perfil/imagen", {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          body: formData
-        });
+    setUsuari(data);
 
-        const data = await res.json();
-        setUsuari(data);
-      };
+    setForm({
+      nom_complet: data.nom_complet || "",
+      username: data.username || "",
+      bio: data.bio || "",
+      telefon: data.telefon || "",
+      imatge_perfil: data.imatge_perfil || "",
+      imatge_coberta: data.imatge_coberta || "",
+      data_naixement: data.data_naixement
+        ? new Date(data.data_naixement).toISOString().split("T")[0]
+        : "",
+      notificacions: {
+        email: data.notificacions?.email ?? true,
+        push: data.notificacions?.push ?? true,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
     fetchPerfil();
     subirImagenes();
   }, []);
 
   const handleImatge = (key, file) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => setForm(f => ({ ...f, [key]: e.target.result }));
-    reader.readAsDataURL(file);
-  };
+  if (!file) return;
 
-  const guardarEdicio = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res   = await fetch("http://localhost:3001/api/perfil", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(form),
-      });
-      const actualitzat = await res.json();
-      setUsuari(actualitzat);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch (err) {
-      console.error(err);
+  // 👉 guardar archivo real
+  if (key === "imatge_perfil") setAvatarFile(file);
+  if (key === "imatge_coberta") setBannerFile(file);
+
+  // 👉 preview (esto ya lo hacías bien)
+  const reader = new FileReader();
+  reader.onload = e => {
+    setForm(f => ({ ...f, [key]: e.target.result }));
+  };
+  reader.readAsDataURL(file);
+};
+
+ const subirImagenes = async () => {
+  const token = localStorage.getItem("token");
+
+  const formData = new FormData();
+
+  if (avatarFile) formData.append("avatar", avatarFile);
+  if (bannerFile) formData.append("banner", bannerFile);
+
+  if (!avatarFile && !bannerFile) return;
+
+  const res = await fetch("http://localhost:3001/api/perfil/imagen", {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+  setUsuari(data);
+};
+
+  
+const guardarEdicio = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    // 1. guardar datos
+    const res = await fetch("http://localhost:3001/api/perfil", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(form),
+    });
+
+    const actualitzat = await res.json();
+    setUsuari(actualitzat);
+
+    // 2. subir imágenes si existen
+    if (avatarFile || bannerFile) {
+      await subirImagenes();
     }
-  };
 
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  } catch (err) {
+    console.error(err);
+  }
+};
   if (loading) {
     return (
       <div className="loading-screen">

@@ -99,3 +99,29 @@ export const updatePerfil = async (req, res) => {
     res.status(500).json({ message: "Error del servidor" });
   }
 };
+
+
+export const updateImagenPerfil = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const avatar = req.files?.avatar?.[0]?.filename;
+    const banner = req.files?.banner?.[0]?.filename;
+
+    const updateData = {};
+
+    if (avatar) updateData.imatge_perfil = `/uploads/${avatar}`;
+    if (banner) updateData.imatge_coberta = `/uploads/${banner}`;
+
+    const updatedUser = await Usuari.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true }
+    );
+
+    res.json(updatedUser);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error subiendo imagen" });
+  }
+};
