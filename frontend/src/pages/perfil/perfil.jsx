@@ -50,7 +50,27 @@ export default function Perfil() {
         setLoading(false);
       }
     };
+    const subirImagenes = async () => {
+        const token = localStorage.getItem("token");
+
+        const formData = new FormData();
+
+        if (avatarFile) formData.append("avatar", avatarFile);
+        if (bannerFile) formData.append("banner", bannerFile);
+
+        const res = await fetch("http://localhost:3001/api/perfil/imagen", {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+        setUsuari(data);
+      };
     fetchPerfil();
+    subirImagenes();
   }, []);
 
   const handleImatge = (key, file) => {
