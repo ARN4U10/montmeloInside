@@ -1,2 +1,17 @@
+# Node
 node_modules/
-*/node_modules/
+npm-debug.log
+yarn-error.log
+
+# Env
+.env
+
+# Uploads (imágenes, archivos subidos)
+uploads/
+
+# Build
+dist/
+build/
+
+# Vite / React
+.vite/
