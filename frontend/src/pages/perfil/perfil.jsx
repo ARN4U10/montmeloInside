@@ -61,19 +61,16 @@ export default function Perfil() {
     subirImagenes();
   }, []);
 
-  const handleImatge = (key, file) => {
+
+const handleImatge = (key, file) => {
   if (!file) return;
 
-  // 👉 guardar archivo real
   if (key === "imatge_perfil") setAvatarFile(file);
   if (key === "imatge_coberta") setBannerFile(file);
 
-  // 👉 preview (esto ya lo hacías bien)
-  const reader = new FileReader();
-  reader.onload = e => {
-    setForm(f => ({ ...f, [key]: e.target.result }));
-  };
-  reader.readAsDataURL(file);
+  // preview SOLO UI (no backend)
+  const url = URL.createObjectURL(file);
+  setForm(f => ({ ...f, [key]: url }));
 };
 
  const subirImagenes = async () => {
@@ -98,25 +95,31 @@ export default function Perfil() {
   setUsuari(data);
 };
 
-  
 const guardarEdicio = async () => {
   try {
     const token = localStorage.getItem("token");
 
-    // 1. guardar datos
+    const cleanForm = {
+      nom_complet: form.nom_complet,
+      username: form.username,
+      bio: form.bio,
+      telefon: form.telefon,
+      data_naixement: form.data_naixement,
+      notificacions: form.notificacions,
+    };
+
     const res = await fetch("http://localhost:3001/api/perfil", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(form),
+      body: JSON.stringify(cleanForm),
     });
 
     const actualitzat = await res.json();
-    setUsuari(actualitzat);
+    setUsuari(actualitzat.usuari);
 
-    // 2. subir imágenes si existen
     if (avatarFile || bannerFile) {
       await subirImagenes();
     }
@@ -147,8 +150,18 @@ const guardarEdicio = async () => {
         <div className="hero-block">
           <div className="banner-wrapper" onClick={() => inputBannerRef.current.click()}>
             {form.imatge_coberta
-              ? <img src={form.imatge_coberta} alt="coberta" className="banner-img" />
-              : <div className="banner-placeholder"><span>＋ Afegir portada</span></div>
+              ? (
+                <img
+                  src={`http://localhost:3001${form.imatge_coberta}`}
+                  alt="coberta"
+                  className="banner-img"
+                />
+              )
+              : (
+                <div className="banner-placeholder">
+                  <span>＋ Afegir portada</span>
+                </div>
+              )
             }
             <div className="banner-edit-badge">✎</div>
           </div>
@@ -158,7 +171,14 @@ const guardarEdicio = async () => {
           <div className="avatar-overlap" onClick={() => inputAvatarRef.current.click()}>
             <div className="avatar">
               {form.imatge_perfil
-                ? <img src={form.imatge_perfil} alt="avatar" />
+                ? <img
+                  src={
+                    form.imatge_perfil
+                      ? `http://localhost:3001${form.imatge_perfil}`
+                      : ""
+                  }
+                  alt="avatar"
+                />
                 : <span>👤</span>
               }
             </div>
