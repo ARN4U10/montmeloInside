@@ -11,7 +11,7 @@ import Perfil from "./pages/perfil/perfil.jsx";
 import Serveis from "./pages/serveis/serveis.jsx";
 import Mapa from "./pages/mapa/mapa.jsx";
 import Home from "./pages/home/home.jsx";
-
+import ForgotPassword from "./pages/forgotpassword/forgotpassword.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -20,6 +20,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/regist" element={<Regist />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/home" element={<Home />} />
         <Route path="/mapa" element={<Mapa />} />
         <Route path="/destinacio" element={<Destinacio />} />
