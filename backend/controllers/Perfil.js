@@ -125,3 +125,18 @@ export const updateImagenPerfil = async (req, res) => {
     res.status(500).json({ message: "Error subiendo imagen" });
   }
 };
+
+
+
+export const logout = async (req, res) => {
+  const userId = req.user.id;
+
+  await Usuari.findByIdAndUpdate(userId, {
+    token: null
+  });
+
+  return res.redirect("/login");
+
+
+  res.json({ message: "Sessió tancada" });
+};
