@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./index.css";
 
 import App from "./App.jsx";
@@ -12,20 +12,35 @@ import Serveis from "./pages/serveis/serveis.jsx";
 import Mapa from "./pages/mapa/mapa.jsx";
 import Home from "./pages/home/home.jsx";
 
+const token = localStorage.getItem("token");
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/regist" element={<Regist />} />
+
+        <Route
+          path="/"
+          element={token ? <Navigate to="/home" replace /> : <App />}
+        />
+
+        <Route
+          path="/login"
+          element={token ? <Navigate to="/home" replace /> : <Login />}
+        />
+
+        <Route
+          path="/regist"
+          element={token ? <Navigate to="/home" replace /> : <Regist />}
+        />
         <Route path="/home" element={<Home />} />
         <Route path="/mapa" element={<Mapa />} />
         <Route path="/destinacio" element={<Destinacio />} />
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/serveis" element={<Serveis />} />
+
         <Route path="*" element={<h1>404</h1>} />
+
       </Routes>
     </BrowserRouter>
   </StrictMode>
