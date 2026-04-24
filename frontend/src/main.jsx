@@ -16,18 +16,21 @@ import PrivateRoute from "./private/PrivateRoute";
 import PublicRoute from "./private/PublicRoute";
 import ForgotPassword from "./pages/forgotpassword/forgotpassword.jsx";
 
+import PrivateRoute from "./private/PrivateRoute";
+import PublicRoute from "./private/PublicRoute";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
 
-        {/* Públicas (si hay token → home) */}
+        {/* PÚBLIQUES */}
         <Route path="/" element={<PublicRoute><App /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/regist" element={<PublicRoute><Regist /></PublicRoute>} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
 
-        {/* Privadas (si NO hay token → login) */}
+        {/* PRIVADES */}
         <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
         <Route path="/mapa" element={<PrivateRoute><Mapa /></PrivateRoute>} />
         <Route path="/destinacio" element={<PrivateRoute><Destinacio /></PrivateRoute>} />
