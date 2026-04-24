@@ -1,24 +1,20 @@
+// middleware/auth.js
 import jwt from "jsonwebtoken";
+const JWT_SECRET = process.env.JWT_SECRET || "SECRET";
 
-export default function auth(req, res, next) {
+export const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!authHeader?.startsWith("Bearer ")) {
     return res.status(401).json({ message: "No token" });
   }
 
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "SECRET"
-    );
-
-    req.user = decoded; // aquí tienes { id: ... }
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded; // { id: "..." }
     next();
-
   } catch (err) {
-    return res.status(401).json({ message: "Token inválido" });
+    return res.status(401).json({ message: "Token invàlid" });
   }
-}
+};

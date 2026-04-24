@@ -23,17 +23,37 @@ export default function Perfil() {
   const inputBannerRef = useRef();
 
   useEffect(() => {
-   const fetchPerfil = async () => {
+const fetchPerfil = async () => {
   try {
     const token = localStorage.getItem("token");
 
+if (!token) {
+  window.location.href = "/login";
+  return;
+}
     const res = await fetch("http://localhost:3001/api/perfil", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    const data = await res.json();
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+      return;
+    }
 
-    setUsuari(data);
+   const data = await res.json();
+
+  if (!res.ok) {
+    console.log("ERROR PERFIL:", data);
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+    return;
+  }
+
+  setUsuari(data);
 
     setForm({
       nom_complet: data.nom_complet || "",
@@ -52,13 +72,13 @@ export default function Perfil() {
     });
   } catch (err) {
     console.error(err);
+    setUsuari(null);
   } finally {
     setLoading(false);
   }
 };
 
     fetchPerfil();
-    subirImagenes();
   }, []);
 
 

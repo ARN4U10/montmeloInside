@@ -46,7 +46,6 @@ export const registre = async (req, res) => {
     const token = jwt.sign(
       { id: user._id },
       JWT_SECRET,
-      { expiresIn: "7d" }
     );
 
     // 👉 opcional: guardar token a BD
@@ -95,7 +94,6 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { id: user._id },
       JWT_SECRET,
-      { expiresIn: "7d" }
     );
 
     // 👉 opcional: guardar token a BD

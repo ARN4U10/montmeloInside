@@ -12,8 +12,8 @@ import Serveis from "./pages/serveis/serveis.jsx";
 import Mapa from "./pages/mapa/mapa.jsx";
 import Home from "./pages/home/home.jsx";
 
-import PrivateRoute from "./routes/PrivateRoute";
-import PublicRoute from "./routes/PublicRoute";
+import PrivateRoute from "./private/PrivateRoute";
+import PublicRoute from "./private/PublicRoute";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
