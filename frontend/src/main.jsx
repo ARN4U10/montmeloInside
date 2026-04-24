@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 
 import App from "./App.jsx";
@@ -12,32 +12,25 @@ import Serveis from "./pages/serveis/serveis.jsx";
 import Mapa from "./pages/mapa/mapa.jsx";
 import Home from "./pages/home/home.jsx";
 
-const token = localStorage.getItem("token");
+import PrivateRoute from "./routes/PrivateRoute";
+import PublicRoute from "./routes/PublicRoute";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
 
-        <Route
-          path="/"
-          element={token ? <Navigate to="/home" replace /> : <App />}
-        />
+        {/* Públicas (si hay token → home) */}
+        <Route path="/" element={<PublicRoute><App /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/regist" element={<PublicRoute><Regist /></PublicRoute>} />
 
-        <Route
-          path="/login"
-          element={token ? <Navigate to="/home" replace /> : <Login />}
-        />
-
-        <Route
-          path="/regist"
-          element={token ? <Navigate to="/home" replace /> : <Regist />}
-        />
-        <Route path="/home" element={<Home />} />
-        <Route path="/mapa" element={<Mapa />} />
-        <Route path="/destinacio" element={<Destinacio />} />
-        <Route path="/perfil" element={<Perfil />} />
-        <Route path="/serveis" element={<Serveis />} />
+        {/* Privadas (si NO hay token → login) */}
+        <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/mapa" element={<PrivateRoute><Mapa /></PrivateRoute>} />
+        <Route path="/destinacio" element={<PrivateRoute><Destinacio /></PrivateRoute>} />
+        <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
+        <Route path="/serveis" element={<PrivateRoute><Serveis /></PrivateRoute>} />
 
         <Route path="*" element={<h1>404</h1>} />
 
