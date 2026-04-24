@@ -102,7 +102,7 @@ const handleLogin = async () => {
                 } /> Recordar sessió
           </label>
 
-          <a href="#" className="lp-forgot">
+          <a href="/forgot-password" className="lp-forgot">
             Has oblidat la contrasenya?
           </a>
         </div>
