@@ -13,20 +13,29 @@ import Mapa from "./pages/mapa/mapa.jsx";
 import Home from "./pages/home/home.jsx";
 import ForgotPassword from "./pages/forgotpassword/forgotpassword.jsx";
 
+import PrivateRoute from "./private/PrivateRoute";
+import PublicRoute from "./private/PublicRoute";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/regist" element={<Regist />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/mapa" element={<Mapa />} />
-        <Route path="/destinacio" element={<Destinacio />} />
-        <Route path="/perfil" element={<Perfil />} />
-        <Route path="/serveis" element={<Serveis />} />
+
+        {/* PÚBLIQUES */}
+        <Route path="/" element={<PublicRoute><App /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/regist" element={<PublicRoute><Regist /></PublicRoute>} />
+        <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+
+        {/* PRIVADES */}
+        <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/mapa" element={<PrivateRoute><Mapa /></PrivateRoute>} />
+        <Route path="/destinacio" element={<PrivateRoute><Destinacio /></PrivateRoute>} />
+        <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
+        <Route path="/serveis" element={<PrivateRoute><Serveis /></PrivateRoute>} />
+
         <Route path="*" element={<h1>404</h1>} />
+
       </Routes>
     </BrowserRouter>
   </StrictMode>
