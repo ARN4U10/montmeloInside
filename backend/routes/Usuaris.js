@@ -11,7 +11,7 @@ import {
   restablirPassword,
 } from "../controllers/RecuperacioPassword.js";
 import upload from "../middleware/upload.js";
-import auth from "../middleware/auth.js";
+import { authMiddleware } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -22,12 +22,12 @@ router.post("/forgot-password", solicitarRecuperacio);
 router.post("/verify-reset-code", verificarCodiRecuperacio);
 router.post("/reset-password", restablirPassword);
 
-router.get("/perfil", auth, getPerfil);
-router.put("/perfil", auth, updatePerfil);
+router.get("/perfil", authMiddleware, getPerfil);
+router.put("/perfil", authMiddleware, updatePerfil);
 
 router.put(
   "/perfil/imagen",
-  auth,
+  authMiddleware,
   upload.fields([
     { name: "avatar", maxCount: 1 },
     { name: "banner", maxCount: 1 },

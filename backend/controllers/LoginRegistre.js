@@ -2,6 +2,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Usuari from "../models/Usuaris.js";
 
+const JWT_SECRET = process.env.JWT_SECRET || "SECRET";
+
+// 🔹 REGISTRE
 export const registre = async (req, res) => {
   try {
     const { nom_complet, correu, contrasenya } = req.body;
@@ -42,9 +45,12 @@ export const registre = async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      JWT_SECRET,
     );
+
+    // 👉 opcional: guardar token a BD
+    user.token = token;
+    await user.save();
 
     res.json({
       token,
@@ -61,6 +67,8 @@ export const registre = async (req, res) => {
   }
 };
 
+
+// 🔹 LOGIN
 export const login = async (req, res) => {
   try {
     console.log("BODY LOGIN:", req.body);
@@ -85,9 +93,12 @@ export const login = async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id },
-      process.env.JWT_SECRET || "SECRET",
-      { expiresIn: "7d" }
+      JWT_SECRET,
     );
+
+    // 👉 opcional: guardar token a BD
+    user.token = token;
+    await user.save();
 
     return res.json({
       token,

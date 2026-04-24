@@ -11,6 +11,9 @@ import Perfil from "./pages/perfil/perfil.jsx";
 import Serveis from "./pages/serveis/serveis.jsx";
 import Mapa from "./pages/mapa/mapa.jsx";
 import Home from "./pages/home/home.jsx";
+
+import PrivateRoute from "./private/PrivateRoute";
+import PublicRoute from "./private/PublicRoute";
 import ForgotPassword from "./pages/forgotpassword/forgotpassword.jsx";
 
 createRoot(document.getElementById("root")).render(
