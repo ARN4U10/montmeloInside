@@ -172,7 +172,11 @@ const guardarEdicio = async () => {
             {form.imatge_coberta
               ? (
                 <img
-                  src={`http://localhost:3001${form.imatge_coberta}`}
+                  src={
+                    form.imatge_coberta
+                      ? `http://localhost:3001${form.imatge_coberta}`
+                      : "/images/default-banner.jpg"
+                  }
                   alt="coberta"
                   className="banner-img"
                 />
@@ -195,11 +199,11 @@ const guardarEdicio = async () => {
                   src={
                     form.imatge_perfil
                       ? `http://localhost:3001${form.imatge_perfil}`
-                      : ""
+                      : "/images/default-user.jpg"
                   }
                   alt="avatar"
                 />
-                : <span>👤</span>
+                : <img src="/images/default-user.jpg" alt="avatar" />
               }
             </div>
             <div className="avatar-edit-badge">✎</div>
