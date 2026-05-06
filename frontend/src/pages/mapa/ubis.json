@@ -1,0 +1,70 @@
+[
+  { "id": 1, "lat": 41.5698, "lng": 2.2599, "label": "Tribuna Principal", "categoria": "tribune", "tipus": "main" },
+  { "id": 2, "lat": 41.5707, "lng": 2.2585, "label": "Tribuna J", "categoria": "tribune" },
+  { "id": 3, "lat": 41.5718, "lng": 2.2568, "label": "Tribuna K", "categoria": "tribune" },
+
+  { "id": 7, "lat": 41.5737, "lng": 2.2559, "label": "T1", "categoria": "tribune" },
+  { "id": 4, "lat": 41.574, "lng": 2.2542, "label": "Tribuna A", "categoria": "tribune" },
+  { "id": 8, "lat": 41.5744, "lng": 2.253, "label": "T3", "categoria": "tribune" },
+
+  { "id": 5, "lat": 41.5729, "lng": 2.2518, "label": "Tribuna L", "categoria": "tribune" },
+  { "id": 6, "lat": 41.5723, "lng": 2.2506, "label": "Tribuna M", "categoria": "tribune" },
+
+  { "id": 9, "lat": 41.5745, "lng": 2.2552, "label": "T4–T5", "categoria": "tribune" },
+  { "id": 10, "lat": 41.5731, "lng": 2.2512, "label": "T6", "categoria": "tribune" },
+  { "id": 11, "lat": 41.5719, "lng": 2.2514, "label": "T7", "categoria": "tribune" },
+  { "id": 12, "lat": 41.5713, "lng": 2.254, "label": "T8", "categoria": "tribune" },
+
+  { "id": 13, "lat": 41.572, "lng": 2.2618, "label": "T9", "categoria": "tribune" },
+  { "id": 14, "lat": 41.5725, "lng": 2.2666, "label": "Tribuna N", "categoria": "tribune" },
+
+  { "id": 15, "lat": 41.5693, "lng": 2.2698, "label": "T10", "categoria": "tribune" },
+
+  { "id": 16, "lat": 41.5687, "lng": 2.2706, "label": "T11", "categoria": "tribune" },
+  { "id": 17, "lat": 41.5682, "lng": 2.2714, "label": "T12", "categoria": "tribune" },
+  { "id": 18, "lat": 41.5676, "lng": 2.272, "label": "T13", "categoria": "tribune" },
+  { "id": 19, "lat": 41.567, "lng": 2.2716, "label": "T14", "categoria": "tribune" },
+
+  { "id": 20, "lat": 41.5665, "lng": 2.2708, "label": "T15", "categoria": "tribune" },
+  { "id": 21, "lat": 41.5662, "lng": 2.2695, "label": "T16", "categoria": "tribune" },
+
+  { "id": 22, "lat": 41.5684, "lng": 2.2726, "label": "Tribuna B", "categoria": "tribune" },
+  { "id": 23, "lat": 41.5678, "lng": 2.2732, "label": "Tribuna C", "categoria": "tribune" },
+  { "id": 24, "lat": 41.567, "lng": 2.2728, "label": "Tribuna G", "categoria": "tribune" },
+  { "id": 25, "lat": 41.5663, "lng": 2.272, "label": "Tribuna H", "categoria": "tribune" },
+  { "id": 26, "lat": 41.569, "lng": 2.27, "label": "Tribuna I", "categoria": "tribune" },
+
+  { "id": 30, "lat": 41.5743, "lng": 2.2545, "label": "Green Zone", "categoria": "zone" },
+  { "id": 31, "lat": 41.5683, "lng": 2.2735, "label": "Orange Zone", "categoria": "zone" },
+  { "id": 32, "lat": 41.5727, "lng": 2.2675, "label": "Kids Zone", "categoria": "zone" },
+  { "id": 33, "lat": 41.5718, "lng": 2.2528, "label": "Fanzone Nord", "categoria": "zone" },
+  { "id": 34, "lat": 41.5678, "lng": 2.2668, "label": "Fanzone Sud", "categoria": "zone" },
+  { "id": 35, "lat": 41.5658, "lng": 2.2705, "label": "Garden Village", "categoria": "zone" },
+
+  { "id": 40, "lat": 41.5696, "lng": 2.2635, "label": "Paddock", "categoria": "paddock" },
+  { "id": 41, "lat": 41.5701, "lng": 2.2612, "label": "Pit Lane", "categoria": "paddock" },
+  { "id": 42, "lat": 41.5692, "lng": 2.2628, "label": "VIP", "categoria": "paddock" },
+  { "id": 43, "lat": 41.5705, "lng": 2.2622, "label": "Race Control", "categoria": "paddock" },
+
+  { "id": 60, "lat": 41.5708, "lng": 2.2475, "label": "Entrada Oest", "categoria": "access" },
+  { "id": 61, "lat": 41.5658, "lng": 2.2665, "label": "Gate 1", "categoria": "access" },
+  { "id": 62, "lat": 41.5661, "lng": 2.2705, "label": "Gate 2", "categoria": "access" },
+  { "id": 63, "lat": 41.5672, "lng": 2.2658, "label": "Gate 3", "categoria": "access" },
+  { "id": 67, "lat": 41.5735, "lng": 2.2688, "label": "Gate 7", "categoria": "access" },
+
+  { "id": 80, "lat": 41.5745, "lng": 2.2535, "label": "Creu Roja Nord", "categoria": "medical" },
+  { "id": 81, "lat": 41.5715, "lng": 2.2485, "label": "Creu Roja Oest", "categoria": "medical" },
+  { "id": 82, "lat": 41.568, "lng": 2.266, "label": "Creu Roja Sud", "categoria": "medical" },
+
+  { "id": 100, "lat": 41.5728, "lng": 2.2522, "label": "Food Nord", "categoria": "food" },
+  { "id": 101, "lat": 41.568, "lng": 2.2665, "label": "Food Sud", "categoria": "food" },
+
+  { "id": 110, "lat": 41.5732, "lng": 2.253, "label": "Merchandising", "categoria": "merch" },
+
+  { "id": 120, "lat": 41.573, "lng": 2.2735, "label": "Heliport", "categoria": "heli" },
+
+  { "id": 130, "lat": 41.5742, "lng": 2.254, "label": "WC Nord", "categoria": "wc" },
+  { "id": 131, "lat": 41.5718, "lng": 2.2505, "label": "WC Oest", "categoria": "wc" },
+  { "id": 132, "lat": 41.5695, "lng": 2.2645, "label": "WC Paddock", "categoria": "wc" },
+  { "id": 133, "lat": 41.567, "lng": 2.271, "label": "WC Stadium", "categoria": "wc" }
+]

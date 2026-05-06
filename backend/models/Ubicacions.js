@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 const { Schema } = mongoose;
 
 const UbicacioSchema = new Schema({
@@ -8,7 +7,8 @@ const UbicacioSchema = new Schema({
   latitud: Number,
   longitud: Number,
   descripcio: String,
-  tipus: String
+  tipus: String,
+  categoria: String,
 });
 
 export default mongoose.model("ubicacions", UbicacioSchema);
