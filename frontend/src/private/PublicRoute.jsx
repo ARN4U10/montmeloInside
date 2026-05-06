@@ -1,13 +1,12 @@
 import { Navigate } from "react-router-dom";
 
-const PublicRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
+export default function PublicRoute({ children }) {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  const guest = localStorage.getItem("guest");
 
-  if (token) {
+  if (token || guest) {
     return <Navigate to="/home" replace />;
   }
 
   return children;
-};
-
-export default PublicRoute;
+}

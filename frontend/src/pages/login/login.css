@@ -1,216 +1,264 @@
-
 html, body, #root {
   margin: 0;
   padding: 0;
   height: 100%;
   font-family: Arial, sans-serif;
   background: #d9d9d9 !important;
-
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  .lp-page {
-    min-height: 580px;
-    background: #d9d9d9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Barlow', Arial, sans-serif;
-    padding: 40px 20px;
-  }
+.lp-page {
+  min-height: 580px;
+  background: #d9d9d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow', Arial, sans-serif;
+  padding: 40px 20px;
+}
 
-  .lp-card {
-    background: #d9d9d9;
-    width: 100%;
-    max-width: 480px;
-    display: flex;
-    flex-direction: column;
-  }
+.lp-card {
+  background: #d9d9d9;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+}
 
-  .lp-back {
+.lp-back {
   height: 15px;
   width: 20px;
   cursor: pointer;
-  margin-left: -460px; /* mueve más a la izquierda */
+  margin-left: -460px;
 }
 
-  .lp-title {
-    font-size: 30px;
-    font-weight: 700;
-    color: #111;
-    margin-bottom: 6px;
-    text-align: left;
-  }
+.lp-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 6px;
+  text-align: left;
+}
 
-  .lp-subtitle {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 28px;
-    text-align: left;
-  }
+.lp-subtitle {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 28px;
+  text-align: left;
+}
 
-  .lp-label {
-    font-size: 13px;
-    color: #333;
-    margin-bottom: 6px;
-    display: block;
-    text-align: left;
-  }
+.lp-label {
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 6px;
+  display: block;
+  text-align: left;
+}
 
-  .lp-input-wrap {
-    background: #222;
-    border-radius: 12px;
-    padding: 0 14px;
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
-    border: 1.5px solid transparent;
-  }
+.lp-input-wrap {
+  background: #222;
+  border-radius: 12px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  border: 1.5px solid transparent;
+}
 
-  .lp-input-wrap:focus-within {
-    border-color: #dc1e1e;
-  }
+.lp-input-wrap:focus-within {
+  border-color: #dc1e1e;
+}
 
-  .lp-input-icon {
-    color: #777;
-    font-size: 15px;
-    margin-right: 10px;
-    flex-shrink: 0;
-  }
+.lp-input-icon {
+  color: #777;
+  font-size: 15px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
 
-  .lp-input-wrap input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #fff;
-    font-family: 'Barlow', Arial, sans-serif;
-    font-size: 14px;
-    padding: 14px 0;
-  }
+.lp-input-wrap input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: 'Barlow', Arial, sans-serif;
+  font-size: 14px;
+  padding: 14px 0;
+}
 
-  .lp-input-wrap input::placeholder { color: #555; }
+.lp-input-wrap input::placeholder {
+  color: #555;
+}
 
-  .lp-eye {
-    background: none;
-    border: none;
-    color: #777;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 0;
-    line-height: 1;
-  }
+.lp-eye {
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1;
+}
 
-  .lp-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 2px 0 22px;
-    font-size: 13px;
-  }
+.lp-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2px 0 22px;
+  font-size: 13px;
+}
 
-  .lp-remember {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    color: #333;
-    cursor: pointer;
-  }
+.lp-remember {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #333;
+  cursor: pointer;
+}
 
-  .lp-remember input[type="checkbox"] {
-    width: 16px; height: 16px;
-    accent-color: #dc1e1e;
-    cursor: pointer;
-  }
+.lp-remember input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #dc1e1e;
+  cursor: pointer;
+}
 
-  .lp-forgot {
-    color: #dc1e1e;
-    font-weight: 600;
-    text-decoration: none;
-    font-size: 13px;
-  }
+.lp-forgot {
+  color: #dc1e1e;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 13px;
+}
 
-  .lp-submit {
-    width: 100%;
-    background: #dc1e1e;
-    color: white;
-    border: none;
-    border-radius: 30px;
-    padding: 15px;
-    font-family: 'Barlow', Arial, sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background 0.15s;
-    margin-bottom: 22px;
-  }
-  
-  .lp-submit-icon {
-    height: 15px;
-    width: 20px;
-  }
+.lp-submit {
+  width: 100%;
+  background: #dc1e1e;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 15px;
+  font-family: 'Barlow', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s;
+  margin-bottom: 22px;
+}
 
-  .lp-submit:hover { background: #b01818; }
+.lp-submit:hover {
+  background: #b01818;
+}
 
-  .lp-divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 18px;
-  }
+.lp-submit-icon {
+  height: 15px;
+  width: 20px;
+}
 
-  .lp-divider-line { flex: 1; height: 1px; background: #aaa; }
+.lp-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
 
-  .lp-divider-text {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    color: #777;
-    white-space: nowrap;
-  }
+.lp-divider-line {
+  flex: 1;
+  height: 1px;
+  background: #aaa;
+}
 
-  .lp-social {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 22px;
-  }
+.lp-divider-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: #777;
+  white-space: nowrap;
+}
 
-  .lp-social-btn {
-    flex: 1;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    background: #1e1e1e;
-    color: white;
-    font-family: 'Barlow', Arial, sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background 0.15s;
-  }
+/* SOCIAL LOGIN: GOOGLE + CONVIDAT */
 
-  .lp-social-btn:hover { background: #2e2e2e; }
+.lp-social {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 22px;
+}
 
-  .lp-register {
-    font-size: 13px;
-    color: #555;
-    text-align: center;
-  }
+.lp-google-btn-wrap {
+  height: 46px;
+  background: #ffffff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
 
-  .lp-register a {
-    color: #dc1e1e;
-    font-weight: 700;
-    text-decoration: none;
-  }
+.lp-google-btn-wrap > div {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.lp-guest-btn {
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #1e1e1e;
+  color: white;
+  font-family: 'Barlow', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.15s;
+}
+
+.lp-guest-btn:hover {
+  background: #2e2e2e;
+}
+
+.lp-guest-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.lp-guest-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.lp-register {
+  font-size: 13px;
+  color: #555;
+  text-align: center;
+}
+
+.lp-register a {
+  color: #dc1e1e;
+  font-weight: 700;
+  text-decoration: none;
+}
 
 .login-page {
   min-height: 100vh;
@@ -218,13 +266,22 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;   /* centrado vertical */
+  justify-content: center;
   padding: 40px 20px;
 }
 
 .login-content {
   width: 100%;
-  max-width: 480px;   /* más ancho en desktop */
-  margin: 0 auto;     /* centrado */
-  /* resto igual */
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+  .lp-social {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-back {
+    margin-left: 0;
+  }
 }

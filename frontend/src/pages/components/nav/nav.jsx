@@ -1,15 +1,30 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./nav.css";
 
 export default function Nav() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleSheet = () => {
     console.log("Abrir mapa");
   };
 
   const isActive = (path) => location.pathname === path;
+
+  const goPerfil = (e) => {
+    e.preventDefault();
+
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const guest = localStorage.getItem("guest");
+
+    if (guest && !token) {
+      navigate("/perfil-convidat");
+    } else {
+      navigate("/perfil");
+    }
+  };
 
   return (
     <nav className="bottom-nav">
@@ -51,7 +66,13 @@ export default function Nav() {
       </a>
 
       {/* PERFIL */}
-      <a href="/perfil" className={`nav-item ${isActive("/perfil") ? "active" : ""}`}>
+      <a
+        href="/perfil"
+        className={`nav-item ${
+          isActive("/perfil") || isActive("/perfil-convidat") ? "active" : ""
+        }`}
+        onClick={goPerfil}
+      >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
           <circle cx={12} cy={7} r={4} />
