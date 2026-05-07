@@ -165,7 +165,7 @@ export default function MapaCircuit() {
   const sheetRef                      = useRef(null);
   const dragStart                     = useRef(null);
   const [punts, setPunts] = useState([]);
-
+  const [destinacio, setDestinacio] = useState(null);
 
   useEffect(() => {
   const fetchPunts = async () => {
@@ -180,6 +180,50 @@ export default function MapaCircuit() {
 
   fetchPunts();
 }, []);
+const selPunt = (punt) => {
+  setPuntSel(punt);
+  setDestinacio(punt);
+
+  setRutaPuntos(null);
+  setRutaInfo(null);
+  setFitRuta(null);
+
+  setFlyTarget({ center: [punt.lat, punt.lng], zoom: 17 });
+  setSheet("mid");
+};
+
+const obtenirRuta = async (origen, desti) => {
+  if (!origen || !desti) return;
+
+  setRutaLoading(true);
+
+  try {
+    const url =
+      `https://router.project-osrm.org/route/v1/driving/` +
+      `${origen[1]},${origen[0]};${desti.lng},${desti.lat}` +
+      `?overview=full&geometries=polyline`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.code !== "Ok") return;
+
+    const route = data.routes[0];
+    const pts = decodePolyline(route.geometry);
+
+    setRutaPuntos(pts);
+    setRutaInfo({
+      distancia: (route.distance / 1000).toFixed(1),
+      temps: formatMin(route.duration),
+    });
+
+    setFitRuta(pts);
+  } catch (err) {
+    console.error("Error ruta:", err);
+  } finally {
+    setRutaLoading(false);
+  }
+};
 
 
   const toggleCat = (cat) => {
@@ -202,30 +246,72 @@ export default function MapaCircuit() {
   };
   useEffect(() => { demanarUbicacio(); }, []);
 
-  // ── Ruta ─────────────────────────────────────────────────────────────────
-  const calcularRuta = async () => {
-    if (!userPos || !puntSel) return;
-    setRutaLoading(true); setRutaPuntos(null); setRutaInfo(null);
+
+ const calcularRuta = () => {
+  if (!userPos || !puntSel) return;
+  obtenirRuta(userPos, puntSel);
+};
+useEffect(() => {
+  if (!userPos || !destinacio) return;
+  obtenirRuta(userPos, destinacio);
+}, [userPos, destinacio]);
+  useEffect(() => {
+  if (!userPos || !destinacio) return;
+
+  const calcularRutaAuto = async () => {
+    setRutaLoading(true);
+
     try {
-      const url = `https://router.project-osrm.org/route/v1/driving/${userPos[1]},${userPos[0]};${puntSel.lng},${puntSel.lat}?overview=full&geometries=polyline`;
+      const url = `https://router.project-osrm.org/route/v1/driving/` +
+        `${userPos[1]},${userPos[0]};${destinacio.lng},${destinacio.lat}` +
+        `?overview=full&geometries=polyline`;
+
       const res = await fetch(url);
       const data = await res.json();
-      if (data.code !== "Ok") throw new Error();
+
+      if (data.code !== "Ok") return;
+
       const route = data.routes[0];
       const pts = decodePolyline(route.geometry);
+
       setRutaPuntos(pts);
-      setRutaInfo({ distancia: (route.distance / 1000).toFixed(1), temps: formatMin(route.duration) });
+      setRutaInfo({
+        distancia: (route.distance / 1000).toFixed(1),
+        temps: formatMin(route.duration),
+      });
+
       setFitRuta(pts);
-    } catch { setRutaInfo({ error: true }); }
-    finally { setRutaLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setRutaLoading(false);
+    }
   };
 
-  const selPunt = (punt) => {
-    setPuntSel(punt);
-    setRutaPuntos(null); setRutaInfo(null); setFitRuta(null);
-    setFlyTarget({ center: [punt.lat, punt.lng], zoom: 17 });
-    setSheet("mid");
-  };
+  calcularRutaAuto();
+}, [destinacio, userPos]);
+
+
+function ClickHandler({ onSelect }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const handler = (e) => {
+      const punt = {
+        lat: e.latlng.lat,
+        lng: e.latlng.lng,
+        label: "Punt seleccionat",
+        categoria: "info"
+      };
+      onSelect(punt);
+    };
+
+    map.on("click", handler);
+    return () => map.off("click", handler);
+  }, [map, onSelect]);
+
+  return null;
+}
 
   // ── Sheet drag ────────────────────────────────────────────────────────────
   const onDragStart = (e) => {
@@ -310,6 +396,7 @@ export default function MapaCircuit() {
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <MapRef onMap={setMapInst} />
+          <ClickHandler onSelect={selPunt} />
           {flyTarget && !fitRuta && <FlyTo target={flyTarget} />}
           {fitRuta && <FitRuta puntos={fitRuta} />}
 

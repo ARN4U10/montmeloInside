@@ -474,3 +474,83 @@ input  { font-family: inherit; }
   z-index: 2;
   font-weight: 600;
 }
+
+.mc-sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 2px 2px;
+}
+
+/* icona categoria */
+.mc-sheet-cat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.08);
+
+  transition: transform .2s ease;
+}
+
+.mc-sheet-cat-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* hover subtil */
+.mc-sheet-cat-icon:hover {
+  transform: scale(1.05);
+}
+
+/* text principal */
+.mc-sheet-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -.3px;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+/* categoria label */
+.mc-sheet-cat-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 3px;
+  opacity: .9;
+  letter-spacing: .2px;
+}
+
+/* meta info pill style */
+.mc-sheet-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 12px;
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+
+  backdrop-filter: blur(10px);
+}
+
+.mc-meta-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 4px rgba(230,57,70,.15);
+}
+
+.mc-meta-text {
+  font-size: 13px;
+  color: var(--text2);
+  font-weight: 500;
+  line-height: 1.3;
+}
