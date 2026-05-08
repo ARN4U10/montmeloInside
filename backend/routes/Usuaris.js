@@ -12,6 +12,7 @@ import {
 } from "../controllers/RecuperacioPassword.js";
 import upload from "../middleware/upload.js";
 import { authMiddleware } from "../middleware/auth.js";
+import { getDestinacions } from "../controllers/Destinacio.js";
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.post("/login", login);
 router.post("/forgot-password", solicitarRecuperacio);
 router.post("/verify-reset-code", verificarCodiRecuperacio);
 router.post("/reset-password", restablirPassword);
-
+router.get("/destinacions", getDestinacions);
 router.get("/perfil", authMiddleware, getPerfil);
 router.put("/perfil", authMiddleware, updatePerfil);
 

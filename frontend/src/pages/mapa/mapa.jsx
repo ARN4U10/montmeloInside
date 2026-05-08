@@ -5,8 +5,6 @@ import "leaflet/dist/leaflet.css";
 import "./mapa.css";
 import Navbar from "../components/nav/nav.jsx";
 
-
-
 // ── Icones SVG per categoria ──────────────────────────────────────────────
 const ICONS_SVG = {
   tribune: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20V10l8-7 8 7v10"/><path d="M10 20v-5h4v5"/></svg>`,
@@ -25,31 +23,43 @@ const ICONS_SVG = {
 };
 
 const CAT_META = {
-  tribune:  { color: "#534AB7", label: "Tribunes",           iconKey: "tribune"  },
-  zone:     { color: "#3B6D11", label: "Zones",              iconKey: "zone"     },
-  paddock:  { color: "#185FA5", label: "Paddock / Pits / VIP", iconKey: "paddock" },
-  facility: { color: "#185FA5", label: "Instal·lacions",     iconKey: "facility" },
-  parking:  { color: "#5F5E5A", label: "Pàrquings",          iconKey: "parking"  },
-  access:   { color: "#993C1D", label: "Accessos / Portes",  iconKey: "access"   },
-  medical:  { color: "#E24B4A", label: "Creu Roja / Serveis mèdics", iconKey: "medical" },
-  info:     { color: "#1D9E75", label: "Informació",         iconKey: "info"     },
-  food:     { color: "#BA7517", label: "Restauració",        iconKey: "food"     },
-  merch:    { color: "#854F0B", label: "Merchandising",      iconKey: "merch"    },
-  heli:     { color: "#378ADD", label: "Heliport",           iconKey: "heli"     },
-  bus:      { color: "#639922", label: "Transport públic",   iconKey: "bus"      },
-  wc:       { color: "#888780", label: "WC",                 iconKey: "wc"       },
+  tribune:  { color: "#534AB7", label: "Tribunes",                   iconKey: "tribune"  },
+  zone:     { color: "#3B6D11", label: "Zones",                      iconKey: "zone"     },
+  paddock:  { color: "#185FA5", label: "Paddock / Pits / VIP",       iconKey: "paddock"  },
+  facility: { color: "#185FA5", label: "Instal·lacions",             iconKey: "facility" },
+  parking:  { color: "#5F5E5A", label: "Pàrquings",                  iconKey: "parking"  },
+  access:   { color: "#993C1D", label: "Accessos / Portes",          iconKey: "access"   },
+  medical:  { color: "#E24B4A", label: "Creu Roja / Serveis mèdics", iconKey: "medical"  },
+  info:     { color: "#1D9E75", label: "Informació",                 iconKey: "info"     },
+  food:     { color: "#BA7517", label: "Restauració",                iconKey: "food"     },
+  merch:    { color: "#854F0B", label: "Merchandising",              iconKey: "merch"    },
+  heli:     { color: "#378ADD", label: "Heliport",                   iconKey: "heli"     },
+  bus:      { color: "#639922", label: "Transport públic",           iconKey: "bus"      },
+  wc:       { color: "#888780", label: "WC",                         iconKey: "wc"       },
 };
 
+// ── Modes de transport ────────────────────────────────────────────────────
+const TRANSPORT_MODES = [
+  { id: "driving",   label: "Cotxe",   icon: "🚗", osrm: "driving",   color: "#e63946" },
+  { id: "walking",   label: "A peu",   icon: "🚶", osrm: "foot",      color: "#1d7ef0" },
+  { id: "cycling",   label: "Bici",    icon: "🚴", osrm: "bike",      color: "#3B6D11" },
+];
 
+// ── Pàrquings propers destacats ───────────────────────────────────────────
+const PARKING_TIPS = [
+  { label: "P1 — Nord (10 min a peu)", spots: 1200, dist: "1.1 km" },
+  { label: "P2 — Est (5 min a peu)",   spots: 800,  dist: "0.6 km" },
+  { label: "P3 — Sud (15 min a peu)",  spots: 2000, dist: "1.8 km" },
+];
 
 const MAP_CENTER = [41.5705, 2.2615];
 
 // ── Genera icona Leaflet per categoria ───────────────────────────────────
 const makeCatIcon = (cat, actiu = false) => {
-  const meta = CAT_META[cat] || CAT_META.facility;
-  const color = actiu ? "#e63946" : meta.color;
+  const meta   = CAT_META[cat] || CAT_META.facility;
+  const color  = actiu ? "#e63946" : meta.color;
   const svgIcon = ICONS_SVG[meta.iconKey] || ICONS_SVG.facility;
-  const size = actiu ? 38 : 32;
+  const size   = actiu ? 38 : 32;
   return L.divIcon({
     className: "",
     html: `<div style="
@@ -63,8 +73,8 @@ const makeCatIcon = (cat, actiu = false) => {
         ${svgIcon}
       </div>
     </div>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
+    iconSize:    [size, size],
+    iconAnchor:  [size / 2, size / 2],
     popupAnchor: [0, -(size / 2 + 6)],
   });
 };
@@ -105,12 +115,12 @@ const formatMin = (seg) => {
   return m < 60 ? `${m} min` : `${Math.floor(m / 60)}h ${m % 60}m`;
 };
 
+// ── Map helpers ───────────────────────────────────────────────────────────
 function FlyTo({ target }) {
   const map = useMap();
   useEffect(() => { if (target) map.flyTo(target.center, target.zoom, { duration: 1.1 }); }, [target]);
   return null;
 }
-
 function FitRuta({ puntos }) {
   const map = useMap();
   useEffect(() => {
@@ -118,10 +128,18 @@ function FitRuta({ puntos }) {
   }, [puntos]);
   return null;
 }
-
 function MapRef({ onMap }) {
   const map = useMap();
   useEffect(() => { onMap(map); }, []);
+  return null;
+}
+function ClickHandler({ onSelect }) {
+  const map = useMap();
+  useEffect(() => {
+    const handler = (e) => onSelect({ lat: e.latlng.lat, lng: e.latlng.lng, label: "Punt seleccionat", categoria: "info" });
+    map.on("click", handler);
+    return () => map.off("click", handler);
+  }, [map, onSelect]);
   return null;
 }
 
@@ -136,9 +154,7 @@ function Llegenda({ hidden, onToggle }) {
           onClick={() => onToggle(key)}
           title={meta.label}
         >
-          <span
-            className="mc-leg-dot"
-            style={{ background: meta.color }}
+          <span className="mc-leg-dot" style={{ background: meta.color }}
             dangerouslySetInnerHTML={{ __html: `<div style="width:10px;height:10px">${ICONS_SVG[meta.iconKey]}</div>` }}
           />
           <span className="mc-leg-label">{meta.label}</span>
@@ -148,90 +164,161 @@ function Llegenda({ hidden, onToggle }) {
   );
 }
 
+// ── Transport Mode Selector ───────────────────────────────────────────────
+function TransportSelector({ mode, onChange }) {
+  return (
+    <div className="mc-transport-selector">
+      {TRANSPORT_MODES.map(m => (
+        <button
+          key={m.id}
+          className={`mc-transport-btn ${mode === m.id ? "mc-transport-btn--active" : ""}`}
+          style={mode === m.id ? { borderColor: m.color, background: `${m.color}18` } : {}}
+          onClick={() => onChange(m.id)}
+          title={m.label}
+        >
+          <span className="mc-transport-icon">{m.icon}</span>
+          <span className="mc-transport-label">{m.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── Parking Panel ─────────────────────────────────────────────────────────
+function ParkingPanel({ onClose, onSelectParking }) {
+  return (
+    <div className="mc-parking-panel">
+      <div className="mc-parking-header">
+        <span>🅿️ Pàrquings propers</span>
+        <button onClick={onClose}>✕</button>
+      </div>
+      {PARKING_TIPS.map((p, i) => (
+        <button key={i} className="mc-parking-row" onClick={() => onSelectParking(p)}>
+          <div className="mc-parking-icon">P</div>
+          <div className="mc-parking-info">
+            <div className="mc-parking-name">{p.label}</div>
+            <div className="mc-parking-meta">{p.spots} places · {p.dist}</div>
+          </div>
+          <div className="mc-parking-dist">{p.dist}</div>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════
 export default function MapaCircuit() {
-  const [geoStatus, setGeoStatus]     = useState("idle");
-  const [userPos, setUserPos]         = useState(null);
-  const [puntSel, setPuntSel]         = useState(null);
-  const [flyTarget, setFlyTarget]     = useState(null);
-  const [rutaPuntos, setRutaPuntos]   = useState(null);
-  const [rutaInfo, setRutaInfo]       = useState(null);
-  const [rutaLoading, setRutaLoading] = useState(false);
-  const [fitRuta, setFitRuta]         = useState(null);
-  const [mapInst, setMapInst]         = useState(null);
-  const [hiddenCats, setHiddenCats]   = useState(new Set());
-  const [sheet, setSheet]             = useState("mid");
-  const [showLlegenda, setShowLlegenda] = useState(false);
-  const sheetRef                      = useRef(null);
-  const dragStart                     = useRef(null);
-  const [punts, setPunts] = useState([]);
-  const [destinacio, setDestinacio] = useState(null);
+  const [geoStatus, setGeoStatus]       = useState("idle");
+  const [userPos, setUserPos]           = useState(null);
+  const [puntSel, setPuntSel]           = useState(null);
+  const [flyTarget, setFlyTarget]       = useState(null);
+  const [rutaPuntos, setRutaPuntos]     = useState(null);
+  const [rutaInfo, setRutaInfo]         = useState(null);
+  const [rutaLoading, setRutaLoading]   = useState(false);
+  const [fitRuta, setFitRuta]           = useState(null);
+  const [mapInst, setMapInst]           = useState(null);
+  const [hiddenCats, setHiddenCats]     = useState(new Set());
+  const [sheet, setSheet]               = useState("mid");
+  const [punts, setPunts]               = useState([]);
+  const [destinacio, setDestinacio]     = useState(null);
+  const [menuObert, setMenuObert]       = useState(false);
+  const [menuTab, setMenuTab]           = useState("categories");
+  const [transportMode, setTransportMode] = useState("driving");
+  const [showParking, setShowParking]   = useState(false);
+  const [searchQuery, setSearchQuery]   = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const sheetRef  = useRef(null);
+  const dragStart = useRef(null);
 
+  // ── Fetch punts ──────────────────────────────────────────────────────────
   useEffect(() => {
-  const fetchPunts = async () => {
+    const fetchPunts = async () => {
+      try {
+        const res  = await fetch("http://localhost:3001/api/ubicacions");
+        const data = await res.json();
+        setPunts(data);
+      } catch (err) {
+        console.error("Error cargando ubicacions:", err);
+      }
+    };
+    fetchPunts();
+  }, []);
+
+  // ── Search filter ────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!searchQuery.trim()) { setSearchResults([]); return; }
+    const q = searchQuery.toLowerCase();
+    setSearchResults(
+      punts.filter(p =>
+        p.label?.toLowerCase().includes(q) ||
+        p.sublabel?.toLowerCase().includes(q) ||
+        CAT_META[p.categoria]?.label.toLowerCase().includes(q)
+      ).slice(0, 5)
+    );
+  }, [searchQuery, punts]);
+
+  // ── Seleccionar punt ─────────────────────────────────────────────────────
+  const selPunt = (punt) => {
+    setPuntSel(punt);
+    setDestinacio(punt);
+    setRutaPuntos(null);
+    setRutaInfo(null);
+    setFitRuta(null);
+    setFlyTarget({ center: [punt.lat, punt.lng], zoom: 17 });
+    setSheet("mid");
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
+  // ── Ruta (respecta mode de transport) ───────────────────────────────────
+  const obtenirRuta = async (origen, desti, mode = transportMode) => {
+    if (!origen || !desti) return;
+    setRutaLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/api/ubicacions");
+      const osrmMode = TRANSPORT_MODES.find(m => m.id === mode)?.osrm || "driving";
+      const url = `https://router.project-osrm.org/route/v1/${osrmMode}/` +
+        `${origen[1]},${origen[0]};${desti.lng},${desti.lat}` +
+        `?overview=full&geometries=polyline`;
+      const res  = await fetch(url);
       const data = await res.json();
-      setPunts(data);
+      if (data.code !== "Ok") return;
+      const route = data.routes[0];
+      const pts   = decodePolyline(route.geometry);
+      setRutaPuntos(pts);
+      setRutaInfo({
+        distancia: (route.distance / 1000).toFixed(1),
+        temps: formatMin(route.duration),
+        mode,
+      });
+      setFitRuta(pts);
     } catch (err) {
-      console.error("Error cargando ubicacions:", err);
+      console.error("Error ruta:", err);
+    } finally {
+      setRutaLoading(false);
     }
   };
 
-  fetchPunts();
-}, []);
-const selPunt = (punt) => {
-  setPuntSel(punt);
-  setDestinacio(punt);
+  // Recalcula ruta quan canvia el mode de transport
+  useEffect(() => {
+    if (userPos && destinacio) obtenirRuta(userPos, destinacio, transportMode);
+  }, [transportMode]);
 
-  setRutaPuntos(null);
-  setRutaInfo(null);
-  setFitRuta(null);
-
-  setFlyTarget({ center: [punt.lat, punt.lng], zoom: 17 });
-  setSheet("mid");
-};
-
-const obtenirRuta = async (origen, desti) => {
-  if (!origen || !desti) return;
-
-  setRutaLoading(true);
-
-  try {
-    const url =
-      `https://router.project-osrm.org/route/v1/driving/` +
-      `${origen[1]},${origen[0]};${desti.lng},${desti.lat}` +
-      `?overview=full&geometries=polyline`;
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.code !== "Ok") return;
-
-    const route = data.routes[0];
-    const pts = decodePolyline(route.geometry);
-
-    setRutaPuntos(pts);
-    setRutaInfo({
-      distancia: (route.distance / 1000).toFixed(1),
-      temps: formatMin(route.duration),
-    });
-
-    setFitRuta(pts);
-  } catch (err) {
-    console.error("Error ruta:", err);
-  } finally {
-    setRutaLoading(false);
-  }
-};
-
+  // Ruta automàtica quan es selecciona destinació
+  useEffect(() => {
+    if (userPos && destinacio) obtenirRuta(userPos, destinacio, transportMode);
+  }, [destinacio, userPos]);
 
   const toggleCat = (cat) => {
-    setHiddenCats(prev => {
-      const next = new Set(prev);
-      next.has(cat) ? next.delete(cat) : next.add(cat);
-      return next;
-    });
+    setHiddenCats(prev => { const n = new Set(prev); n.has(cat) ? n.delete(cat) : n.add(cat); return n; });
+  };
+
+  // ── Filtrar ràpid per pàrquings ──────────────────────────────────────────
+  const filterParking = () => {
+    const onlyParking = hiddenCats.has("parking")
+      ? new Set([...hiddenCats].filter(c => c !== "parking"))
+      : new Set(Object.keys(CAT_META).filter(c => c !== "parking"));
+    setHiddenCats(onlyParking);
+    setMenuObert(false);
   };
 
   // ── Geo ──────────────────────────────────────────────────────────────────
@@ -246,90 +333,24 @@ const obtenirRuta = async (origen, desti) => {
   };
   useEffect(() => { demanarUbicacio(); }, []);
 
-
- const calcularRuta = () => {
-  if (!userPos || !puntSel) return;
-  obtenirRuta(userPos, puntSel);
-};
-useEffect(() => {
-  if (!userPos || !destinacio) return;
-  obtenirRuta(userPos, destinacio);
-}, [userPos, destinacio]);
-  useEffect(() => {
-  if (!userPos || !destinacio) return;
-
-  const calcularRutaAuto = async () => {
-    setRutaLoading(true);
-
-    try {
-      const url = `https://router.project-osrm.org/route/v1/driving/` +
-        `${userPos[1]},${userPos[0]};${destinacio.lng},${destinacio.lat}` +
-        `?overview=full&geometries=polyline`;
-
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (data.code !== "Ok") return;
-
-      const route = data.routes[0];
-      const pts = decodePolyline(route.geometry);
-
-      setRutaPuntos(pts);
-      setRutaInfo({
-        distancia: (route.distance / 1000).toFixed(1),
-        temps: formatMin(route.duration),
-      });
-
-      setFitRuta(pts);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setRutaLoading(false);
-    }
-  };
-
-  calcularRutaAuto();
-}, [destinacio, userPos]);
-
-
-function ClickHandler({ onSelect }) {
-  const map = useMap();
-
-  useEffect(() => {
-    const handler = (e) => {
-      const punt = {
-        lat: e.latlng.lat,
-        lng: e.latlng.lng,
-        label: "Punt seleccionat",
-        categoria: "info"
-      };
-      onSelect(punt);
-    };
-
-    map.on("click", handler);
-    return () => map.off("click", handler);
-  }, [map, onSelect]);
-
-  return null;
-}
-
   // ── Sheet drag ────────────────────────────────────────────────────────────
   const onDragStart = (e) => {
-    const y = e.touches ? e.touches[0].clientY : e.clientY;
-    dragStart.current = { y, sheet };
+    dragStart.current = { y: e.touches ? e.touches[0].clientY : e.clientY, sheet };
   };
   const onDragEnd = (e) => {
     if (!dragStart.current) return;
-    const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+    const y     = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
     const delta = y - dragStart.current.y;
-    if (delta < -40)      setSheet("full");
-    else if (delta > 40)  setSheet(sheet === "full" ? "mid" : "collapsed");
+    if (delta < -40)     setSheet("full");
+    else if (delta > 40) setSheet(sheet === "full" ? "mid" : "collapsed");
     dragStart.current = null;
   };
 
   const distPuntSel = userPos && puntSel
     ? distKm(userPos[0], userPos[1], puntSel.lat, puntSel.lng).toFixed(1)
     : null;
+
+  const rutaColor = TRANSPORT_MODES.find(m => m.id === (rutaInfo?.mode || transportMode))?.color || "#e63946";
 
   // ── Loading screens ───────────────────────────────────────────────────────
   if (geoStatus === "idle" || geoStatus === "requesting") {
@@ -359,41 +380,126 @@ function ClickHandler({ onSelect }) {
     );
   }
 
-  const SHEET_H = { collapsed: 88, mid: puntSel ? 240 : 120, full: 520 };
+  const SHEET_H = { collapsed: 88, mid: puntSel ? 280 : 130, full: 560 };
 
   return (
     <div className="mc-page">
 
+      {/* ═══ HEADER ═══════════════════════════════════════════════════ */}
       <header className="mc-header">
         <div className="mc-header-row">
-          <button className="mc-menu-btn" onClick={() => setShowLlegenda(v => !v)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-              <path d="M3 6h18M3 12h18M3 18h18" />
-            </svg>
-          </button>
-          <div className="mc-search">
+          <img
+            className="mc-menu-btn"
+            src="/images/filter.jpg"
+            alt="Filtres"
+            onClick={() => setMenuObert(v => !v)}
+          />
+
+          {/* Search */}
+          <div className="mc-search" style={{ position: "relative" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="7"/>
-              <path d="M20 20l-3.5-3.5"/>
+              <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
             </svg>
-            <input type="text" placeholder="Cercar destinacions" />
+            <input
+              type="text"
+              placeholder="Cercar destinacions…"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button style={{ color: "#888", fontSize: 14 }} onClick={() => { setSearchQuery(""); setSearchResults([]); }}>✕</button>
+            )}
           </div>
+
+          {/* Botó pàrquing ràpid */}
+          <button className="mc-parking-quick-btn" onClick={() => setShowParking(v => !v)} title="Pàrquings">
+            🅿️
+          </button>
         </div>
 
-        {showLlegenda && (
-          <Llegenda hidden={hiddenCats} onToggle={toggleCat} />
+        {/* Dropdown resultats cerca */}
+        {searchResults.length > 0 && (
+          <div className="mc-search-dropdown">
+            {searchResults.map(p => (
+              <button key={p.id} className="mc-search-result" onClick={() => selPunt(p)}>
+                <span
+                  className="mc-search-result-dot"
+                  style={{ background: CAT_META[p.categoria]?.color }}
+                />
+                <div>
+                  <div className="mc-search-result-name">{p.label}</div>
+                  <div className="mc-search-result-cat">{CAT_META[p.categoria]?.label}</div>
+                </div>
+              </button>
+            ))}
+          </div>
         )}
       </header>
 
       {/* ═══ MAP ══════════════════════════════════════════════════════ */}
       <div className="mc-map-wrap" style={{ bottom: SHEET_H[sheet] }}>
-        <MapContainer
-          center={MAP_CENTER}
-          zoom={15}
-          className="mc-leaflet"
-          zoomControl={false}
-          attributionControl={false}
-        >
+        <MapContainer center={MAP_CENTER} zoom={15} className="mc-leaflet" zoomControl={false} attributionControl={false}>
+
+          {/* DRAWER */}
+          {menuObert && (
+            <div className="mc-drawer-overlay" onMouseDown={e => { if (e.target === e.currentTarget) setMenuObert(false); }}>
+              <div className="mc-drawer" onClick={e => e.stopPropagation()}>
+                <div className="mc-drawer-top">
+                  <div className="mc-drawer-title">Filtres</div>
+                  <button className="mc-drawer-close" onClick={() => setMenuObert(false)}>✕</button>
+                </div>
+
+                <div className="mc-drawer-tabs">
+                  <button className={menuTab === "categories" ? "active" : ""} onClick={() => setMenuTab("categories")}>Categories</button>
+                  <button className={menuTab === "accions"    ? "active" : ""} onClick={() => setMenuTab("accions")}>Accions</button>
+                  <button className={menuTab === "guia"       ? "active" : ""} onClick={() => setMenuTab("guia")}>Guia</button>
+                </div>
+
+                <div className="mc-drawer-content">
+                  {menuTab === "categories" && (
+                    <div>
+                      {/* Accés ràpid pàrquing */}
+                      <button className="mc-drawer-parking-quick" onClick={filterParking}>
+                        🅿️ Mostrar només pàrquings
+                      </button>
+                      {Object.entries(CAT_META).map(([key, meta]) => (
+                        <button
+                          key={key}
+                          className={`mc-drawer-item ${hiddenCats.has(key) ? "off" : ""}`}
+                          onClick={() => toggleCat(key)}
+                        >
+                          <span className="dot" style={{ background: meta.color }} />
+                          {meta.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {menuTab === "accions" && (
+                    <div className="mc-drawer-actions">
+                      <button onClick={() => mapInst?.flyTo(MAP_CENTER, 15)}>🗺️ Centrar mapa</button>
+                      <button onClick={demanarUbicacio}>📍 Actualitzar ubicació</button>
+                      <button onClick={() => { setRutaPuntos(null); setRutaInfo(null); }}>🧹 Esborrar ruta</button>
+                      <button onClick={() => { setPuntSel(null); setDestinacio(null); }}>❌ Desseleccionar punt</button>
+                      <button onClick={() => { setHiddenCats(new Set()); }}>👁️ Mostrar tot</button>
+                    </div>
+                  )}
+
+                  {menuTab === "guia" && (
+                    <div className="mc-drawer-guide">
+                      <h4>Com usar el mapa</h4>
+                      <p>• Toca un punt per veure informació</p>
+                      <p>• Selecciona el mode de transport per calcular la ruta</p>
+                      <p>• Prem 🅿️ per veure pàrquings disponibles</p>
+                      <p>• Cerca per nom o categoria al buscador</p>
+                      <p>• Arrossega la fitxa inferior amunt/avall</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <MapRef onMap={setMapInst} />
           <ClickHandler onSelect={selPunt} />
@@ -429,12 +535,13 @@ function ClickHandler({ onSelect }) {
 
           {rutaPuntos && (
             <>
-              <Polyline positions={rutaPuntos} pathOptions={{ color: "rgba(230,57,70,.25)", weight: 10, lineCap: "round" }} />
-              <Polyline positions={rutaPuntos} pathOptions={{ color: "#e63946", weight: 4, lineCap: "round" }} />
+              <Polyline positions={rutaPuntos} pathOptions={{ color: `${rutaColor}33`, weight: 10, lineCap: "round" }} />
+              <Polyline positions={rutaPuntos} pathOptions={{ color: rutaColor, weight: 4, lineCap: "round", dashArray: transportMode === "walking" ? "8 6" : transportMode === "cycling" ? "12 4" : null }} />
             </>
           )}
         </MapContainer>
 
+        {/* Zoom */}
         {mapInst && (
           <div className="mc-zoom">
             <button className="mc-zoom-btn" onClick={() => mapInst.zoomIn()}>+</button>
@@ -442,20 +549,36 @@ function ClickHandler({ onSelect }) {
             <button className="mc-zoom-btn" onClick={() => mapInst.zoomOut()}>−</button>
           </div>
         )}
+
+        {/* Panel pàrquings (flotant sobre mapa) */}
+        {showParking && (
+          <ParkingPanel
+            onClose={() => setShowParking(false)}
+            onSelectParking={(p) => {
+              alert(`Navegant a: ${p.label}`);
+              setShowParking(false);
+            }}
+          />
+        )}
+
+        {/* Pill info ruta activa */}
+        {rutaInfo && (
+          <div className="mc-ruta-pill">
+            <span>{TRANSPORT_MODES.find(m => m.id === rutaInfo.mode)?.icon}</span>
+            <span style={{ fontWeight: 700 }}>{rutaInfo.temps}</span>
+            <div className="pill-sep" />
+            <span style={{ color: "#aaa" }}>{rutaInfo.distancia} km</span>
+            <button className="pill-x" onClick={() => { setRutaPuntos(null); setRutaInfo(null); }}>✕</button>
+          </div>
+        )}
       </div>
 
       {/* ═══ BOTTOM SHEET ═════════════════════════════════════════════ */}
-      <div
-        className="mc-sheet"
-        style={{ height: SHEET_H[sheet] }}
-        ref={sheetRef}
-      >
+      <div className="mc-sheet" style={{ height: SHEET_H[sheet] }} ref={sheetRef}>
         <div
           className="mc-sheet-handle-wrap"
-          onMouseDown={onDragStart}
-          onMouseUp={onDragEnd}
-          onTouchStart={onDragStart}
-          onTouchEnd={onDragEnd}
+          onMouseDown={onDragStart} onMouseUp={onDragEnd}
+          onTouchStart={onDragStart} onTouchEnd={onDragEnd}
         >
           <div className="mc-sheet-handle" />
         </div>
@@ -463,33 +586,39 @@ function ClickHandler({ onSelect }) {
         <div className="mc-sheet-body">
           {puntSel ? (
             <>
-              {/* Capçalera del punt seleccionat */}
+              {/* Capçalera */}
               <div className="mc-sheet-head">
                 <div
                   className="mc-sheet-cat-icon"
                   style={{ background: CAT_META[puntSel.categoria]?.color }}
                   dangerouslySetInnerHTML={{ __html: ICONS_SVG[CAT_META[puntSel.categoria]?.iconKey] }}
                 />
-                <div>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="mc-sheet-title">{puntSel.label}</div>
                   <div className="mc-sheet-cat-label" style={{ color: CAT_META[puntSel.categoria]?.color }}>
                     {CAT_META[puntSel.categoria]?.label}
                   </div>
                 </div>
+                <button className="mc-sheet-close" onClick={() => { setPuntSel(null); setDestinacio(null); setRutaPuntos(null); setRutaInfo(null); }}>✕</button>
               </div>
 
+              {/* Selector mode transport */}
+              <TransportSelector mode={transportMode} onChange={(m) => { setTransportMode(m); }} />
+
+              {/* Meta info */}
               <div className="mc-sheet-meta">
-                <span className="mc-meta-dot" />
+                <span className="mc-meta-dot" style={{ background: rutaColor }} />
                 <span className="mc-meta-text">
                   {rutaInfo?.temps
-                    ? `Temps d'arribada: ${rutaInfo.temps} · ${rutaInfo.distancia} km`
+                    ? `${TRANSPORT_MODES.find(m => m.id === rutaInfo.mode)?.icon} ${rutaInfo.temps} · ${rutaInfo.distancia} km`
                     : distPuntSel
                     ? `A ${distPuntSel} km de la teva ubicació`
-                    : "Toca 'Com arribar' per calcular la ruta"}
+                    : "Toca 'Com arribar' per calcular la ruta"
+                  }
                 </span>
               </div>
 
-              {/* Llista de tots els punts (sheet full) */}
+              {/* Llista sheet full */}
               {sheet === "full" && (
                 <div className="mc-sheet-locs">
                   {punts.map(punt => (
@@ -519,12 +648,13 @@ function ClickHandler({ onSelect }) {
 
               <button
                 className="mc-btn-arribar"
-                onClick={calcularRuta}
+                style={{ background: rutaColor, boxShadow: `0 4px 20px ${rutaColor}55` }}
+                onClick={() => obtenirRuta(userPos, puntSel, transportMode)}
                 disabled={rutaLoading || !userPos}
               >
                 {rutaLoading
                   ? <><div className="mc-spin mc-spin--w" />Calculant…</>
-                  : "Com arribar"
+                  : `${TRANSPORT_MODES.find(m => m.id === transportMode)?.icon} Com arribar`
                 }
               </button>
             </>

@@ -1,67 +1,125 @@
+import { useEffect, useState } from "react";
 import "./destinacio.css";
 import Navbar from "../components/nav/nav.jsx";
 
 const categories = [
-  { title: "Grades", icon: "🏟️", color: "red-card" },
-  { title: "Lavabos", icon: "🚻", color: "blue-card" },
-  { title: "Menjar", icon: "🍴", color: "orange-card" },
-  { title: "Sortides", icon: "↪", color: "green-card" },
+  { id: "grades", title: "Grades", icon: "🏟️", color: "red-card" },
+  { id: "wc", title: "Lavabos", icon: "🚻", color: "blue-card" },
+  { id: "menjar", title: "Menjar", icon: "🍴", color: "orange-card" },
+  { id: "sortides", title: "Sortides", icon: "↪", color: "green-card" },
 ];
 
-const results = [
-  { name: "Grada Principal", area: "Àrea Sud", distance: "350m", pin: "📍" },
-  { name: "Paddock Food Court", area: "Àrea Est", distance: "820m", pin: "🍔" },
-  { name: "VIP Lounge", area: "Àrea Nord", distance: "1.2km", pin: "🚪" },
-  { name: "Pàrquing A", area: "Entrada Principal", distance: "500m", pin: "🅿️" },
-];
+const getCategory = (label = "") => {
+  const t = label.toLowerCase();
+
+  if (t.includes("wc")) return "wc";
+  if (t.includes("food") || t.includes("merch")) return "menjar";
+  if (t.includes("heli")) return "sortides";
+  if (t.includes("tribuna") || t.startsWith("t")) return "grades";
+
+  return "grades";
+};
 
 export default function Destinacio() {
+  const [results, setResults] = useState([]);
+  const [filter, setFilter] = useState(null);
+
+  const fetchUbicacions = async () => {
+    const res = await fetch("http://localhost:3001/api/ubicacions");
+    const data = await res.json();
+
+    const normalized = data.map((item) => ({
+      ...item,
+      categoria: getCategory(item.label), // 🔥 FIX IMPORTANT
+    }));
+
+    setResults(normalized);
+  };
+
+  useEffect(() => {
+    fetchUbicacions();
+  }, []);
+
+  const filteredResults = filter
+    ? results.filter((item) => item.categoria === filter)
+    : results;
+
+  const getIcon = (label = "") => {
+    const t = label.toLowerCase();
+
+    if (t.includes("wc")) return "🚻";
+    if (t.includes("heli")) return "🚁";
+    if (t.includes("food") || t.includes("merch")) return "🍴";
+
+    return "📍";
+  };
+
   return (
     <div className="mobile-screen">
+
       <header className="top-bar">
-        <button className="back-button">←</button>
         <h1>Cercar destinació</h1>
       </header>
 
       <main className="screen-content">
-        <div className="search-box">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            placeholder="Buscar grades, lavabo, menjar..."
-          />
-        </div>
 
+        {/* BOTONES */}
         <section className="category-grid">
-          {categories.map((item) => (
-            <button key={item.title} className={`category-card ${item.color}`}>
-              <span className="category-icon">{item.icon}</span>
-              <span className="category-title">{item.title}</span>
+          {categories.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => setFilter(c.id)}
+              className={`category-card ${c.color} ${
+                filter === c.id ? "active" : ""
+              }`}
+            >
+              <span>{c.icon}</span>
+              <span>{c.title}</span>
             </button>
           ))}
         </section>
 
-        <section className="recent-section">
-          <div className="recent-header">
-            <h2>RESULTATS RECENTS</h2>
-            <button className="view-all">Veure tot</button>
-          </div>
+        {/* RESULTADOS */}
+        <section className="results-list">
 
-          <div className="results-list">
-            {results.map((item) => (
-              <div className="result-card" key={item.name}>
-                <div className="result-left">
-                  <div className="result-pin">{item.pin}</div>
-                  <div>
-                    <h3>{item.name}</h3>
-                    <p>{item.area}</p>
+          {filteredResults.map((item) => (
+            <div className="result-card" key={item.id}> {/* 🔥 FIX KEY */}
+
+              <div className="result-left">
+
+                <div className="result-pin">
+                  {getIcon(item.label)}
+                </div>
+
+                <div className="result-info">
+                  <h3>{item.label}</h3>
+
+                  <div className="result-meta">
+                    {item.descripcio && <p>📝 {item.descripcio}</p>}
+                    {item.categoria && <p>🏷️ {item.categoria}</p>}
+                    {item.tipus && <p>📌 {item.tipus}</p>}
+
+                    {(item.latitud || item.longitud) && (
+                      <p>
+                        📍 {item.latitud} · {item.longitud}
+                      </p>
+                    )}
+
+                    {item.direccio && <p>🏠 {item.direccio}</p>}
                   </div>
                 </div>
-                <span className="result-distance">{item.distance}</span>
+
               </div>
-            ))}
-          </div>
+
+              <span className="result-badge">
+                {item.categoria}
+              </span>
+
+            </div>
+          ))}
+
         </section>
+
       </main>
 
       <Navbar />
