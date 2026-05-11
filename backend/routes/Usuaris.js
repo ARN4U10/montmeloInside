@@ -1,11 +1,14 @@
 import express from "express";
 
 import { login, registre } from "../controllers/LoginRegistre.js";
+import { guardarHistorial } from "../controllers/Historial.js"; // ✅ corregit
 
 import {
   getPerfil,
   updatePerfil,
   updateImagenPerfil,
+  getEsdevenimentsUsuari,
+  getHistorialUsuari
 } from "../controllers/Perfil.js";
 
 import {
@@ -36,6 +39,8 @@ router.post("/verify-reset-code", verificarCodiRecuperacio);
 router.post("/reset-password", restablirPassword);
 
 router.get("/destinacions", getDestinacions);
+router.get("/perfil/events",    authMiddleware, getEsdevenimentsUsuari);
+router.get("/perfil/historial", authMiddleware, getHistorialUsuari);
 
 router.get("/perfil", authMiddleware, getPerfil);
 router.put("/perfil", authMiddleware, updatePerfil);
@@ -49,5 +54,7 @@ router.put(
   ]),
   updateImagenPerfil
 );
+
+router.post("/historial", authMiddleware, guardarHistorial);
 
 export default router;

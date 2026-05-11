@@ -54,6 +54,8 @@ const PARKING_TIPS = [
 
 const MAP_CENTER = [41.5705, 2.2615];
 
+
+
 // ── Genera icona Leaflet per categoria ───────────────────────────────────
 const makeCatIcon = (cat, actiu = false) => {
   const meta    = CAT_META[cat] || CAT_META.facility;
@@ -252,6 +254,9 @@ export default function MapaCircuit() {
     fetchPunts();
   }, []);
 
+
+
+
   // ── Search filter ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!searchQuery.trim()) { setSearchResults([]); return; }
@@ -265,18 +270,35 @@ export default function MapaCircuit() {
     );
   }, [searchQuery, punts]);
 
-  // ── Seleccionar punt ─────────────────────────────────────────────────────
-  const selPunt = (punt) => {
-    setPuntSel(punt);
-    setDestinacio(punt);
-    setRutaPuntos(null);
-    setRutaInfo(null);
-    setFitRuta(null);
-    setFlyTarget({ center: [punt.lat, punt.lng], zoom: 17 });
-    setSheet("mid");
-    setSearchQuery("");
-    setSearchResults([]);
-  };
+// ── Seleccionar punt ─────────────────────────────────────────────────────
+const selPunt = async (punt) => {
+  setPuntSel(punt);
+  setDestinacio(punt);
+  setRutaPuntos(null);
+  setRutaInfo(null);
+  setFitRuta(null);
+  setFlyTarget({ center: [punt.lat, punt.lng], zoom: 17 });
+  setSheet("mid");
+  setSearchQuery("");
+  setSearchResults([]);
+
+  // 💾 Desa al historial_navegacio de l'usuari
+  try {
+    const token = localStorage.getItem("token");
+    if (token) {
+      await fetch("http://localhost:3001/api/historial", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ lloc: punt.label }),
+      });
+    }
+  } catch (err) {
+    console.error("Error desant historial:", err);
+  }
+};
 
   // ── Ruta ─────────────────────────────────────────────────────────────────
   const obtenirRuta = async (origen, desti, mode = transportMode) => {
@@ -413,6 +435,16 @@ export default function MapaCircuit() {
               placeholder="Cercar destinacions…"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Enter" && searchQuery.trim()) {
+                  const primer = punts.find(p =>
+                    p.label?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    p.sublabel?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    CAT_META[p.categoria]?.label.toLowerCase().includes(searchQuery.toLowerCase())
+                  );
+                  if (primer) selPunt(primer);
+                }
+              }}
             />
             {searchQuery && (
               <button style={{ color: "#888", fontSize: 14 }} onClick={() => { setSearchQuery(""); setSearchResults([]); }}>✕</button>
