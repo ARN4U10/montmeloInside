@@ -43,3 +43,32 @@ export const getEventById = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const joinEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "userId obligatori"
+      });
+    }
+
+    const event = await Esdeveniment.findById(id);
+
+    if (!event) {
+      return res.status(404).json({ message: "Event no trobat" });
+    }
+
+    if (!event.usuaris.includes(userId)) {
+      event.usuaris.push(userId);
+      await event.save();
+    }
+
+    res.json(event);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};

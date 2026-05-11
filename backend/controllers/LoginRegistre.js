@@ -52,14 +52,14 @@ export const registre = async (req, res) => {
     user.token = token;
     await user.save();
 
-    res.json({
-      token,
-      user: {
-        id: user._id,
-        nom_complet: user.nom_complet,
-        correu: user.correu,
-      }
-    });
+   return res.json({
+  token,
+  user: {
+    _id: user._id,   // 🔥 IMPORTANT
+    nom_complet: user.nom_complet,
+    correu: user.correu,
+  }
+});
 
   } catch (error) {
     console.error(error);

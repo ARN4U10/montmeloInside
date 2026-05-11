@@ -19,6 +19,40 @@ export default function EventInfo() {
     }
   };
 
+const joinEvent = async () => {
+  try {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId || userId === "undefined") {
+      console.error("❌ No hi ha userId vàlid");
+      alert("Has d’iniciar sessió per apuntar-te a l’event");
+      return;
+    }
+
+    const res = await fetch(
+      `http://localhost:3001/api/events/${id}/join`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Error al join");
+    }
+
+    console.log("✅ Joined event correctament");
+    fetchEvent(); // refresca dades
+  } catch (err) {
+    console.error("❌ Error joinEvent:", err.message);
+  }
+};
+
   useEffect(() => {
     fetchEvent();
   }, [id]);
@@ -93,7 +127,7 @@ export default function EventInfo() {
         )}
 
         {/* BOTÓ */}
-        <button className="join-btn">
+        <button className="join-btn" onClick={joinEvent}>
           Inscriure’m a l’event
         </button>
 

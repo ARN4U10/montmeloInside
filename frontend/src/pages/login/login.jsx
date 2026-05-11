@@ -15,26 +15,34 @@ export default function Login() {
     password: "",
   });
 
-  const guardarSessio = (data) => {
-    const token = data.accessToken || data.token;
+const guardarSessio = (data) => {
+  const token = data.accessToken || data.token;
 
-    if (!token) {
-      alert("No s'ha rebut token");
-      return;
+  if (!token) {
+    alert("No s'ha rebut token");
+    return;
+  }
+
+  localStorage.removeItem("guest");
+  sessionStorage.removeItem("guest");
+
+  localStorage.setItem("token", token);
+
+  if (data.user) {
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    // 🔥 AFEGEIX AIXÒ
+    const userId = data.user._id || data.user.id;
+
+    if (userId && userId !== "undefined") {
+      localStorage.setItem("userId", userId);
+    } else {
+      console.error("❌ userId no vàlid al login:", data.user);
     }
+  }
 
-    localStorage.removeItem("guest");
-    sessionStorage.removeItem("guest");
-
-    localStorage.setItem("token", token);
-
-    if (data.user) {
-      localStorage.setItem("user", JSON.stringify(data.user));
-    }
-
-    navigate("/home", { replace: true });
-  };
-
+  navigate("/home", { replace: true });
+};
   const handleLogin = async () => {
     try {
       const payload = {
