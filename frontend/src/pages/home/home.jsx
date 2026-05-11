@@ -18,7 +18,7 @@ const Home = () => {
     alertLevel: "INFO",
   });
 
-  const [userName] = useState("Arnau");
+  const [userName] = useState("User");
 
   useEffect(() => {
     const clockInterval = setInterval(() => {

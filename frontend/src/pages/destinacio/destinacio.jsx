@@ -30,7 +30,7 @@ export default function Destinacio() {
 
     const normalized = data.map((item) => ({
       ...item,
-      categoria: getCategory(item.label), // 🔥 FIX IMPORTANT
+      categoria: getCategory(item.label), 
     }));
 
     setResults(normalized);
@@ -83,7 +83,7 @@ export default function Destinacio() {
         <section className="results-list">
 
           {filteredResults.map((item) => (
-            <div className="result-card" key={item.id}> {/* 🔥 FIX KEY */}
+            <div className="result-card" key={item.id}>
 
               <div className="result-left">
 

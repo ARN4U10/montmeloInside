@@ -56,10 +56,10 @@ const MAP_CENTER = [41.5705, 2.2615];
 
 // ── Genera icona Leaflet per categoria ───────────────────────────────────
 const makeCatIcon = (cat, actiu = false) => {
-  const meta   = CAT_META[cat] || CAT_META.facility;
-  const color  = actiu ? "#e63946" : meta.color;
+  const meta    = CAT_META[cat] || CAT_META.facility;
+  const color   = actiu ? "#e63946" : meta.color;
   const svgIcon = ICONS_SVG[meta.iconKey] || ICONS_SVG.facility;
-  const size   = actiu ? 38 : 32;
+  const size    = actiu ? 38 : 32;
   return L.divIcon({
     className: "",
     html: `<div style="
@@ -154,7 +154,9 @@ function Llegenda({ hidden, onToggle }) {
           onClick={() => onToggle(key)}
           title={meta.label}
         >
-          <span className="mc-leg-dot" style={{ background: meta.color }}
+          <span
+            className="mc-leg-dot"
+            style={{ background: meta.color }}
             dangerouslySetInnerHTML={{ __html: `<div style="width:10px;height:10px">${ICONS_SVG[meta.iconKey]}</div>` }}
           />
           <span className="mc-leg-label">{meta.label}</span>
@@ -164,20 +166,26 @@ function Llegenda({ hidden, onToggle }) {
   );
 }
 
-// ── Transport Mode Selector ───────────────────────────────────────────────
+// ── Transport Selector ────────────────────────────────────────────────────
 function TransportSelector({ mode, onChange }) {
   return (
     <div className="mc-transport-selector">
       {TRANSPORT_MODES.map(m => (
         <button
           key={m.id}
-          className={`mc-transport-btn ${mode === m.id ? "mc-transport-btn--active" : ""}`}
-          style={mode === m.id ? { borderColor: m.color, background: `${m.color}18` } : {}}
+          className={`mc-transport-btn ${mode === m.id ? `mc-transport-btn--active-${m.id}` : ""}`}
           onClick={() => onChange(m.id)}
           title={m.label}
         >
-          <span className="mc-transport-icon">{m.icon}</span>
-          <span className="mc-transport-label">{m.label}</span>
+          <div className="mc-transport-check">
+            <svg viewBox="0 0 10 8" fill="none">
+              <polyline points="1,4 4,7 9,1" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="mc-transport-icon-wrap">
+            <span>{m.icon}</span>
+          </div>
+          <span className="mc-transport-name">{m.label}</span>
         </button>
       ))}
     </div>
@@ -208,24 +216,24 @@ function ParkingPanel({ onClose, onSelectParking }) {
 
 // ══════════════════════════════════════════════════════════════════════════
 export default function MapaCircuit() {
-  const [geoStatus, setGeoStatus]       = useState("idle");
-  const [userPos, setUserPos]           = useState(null);
-  const [puntSel, setPuntSel]           = useState(null);
-  const [flyTarget, setFlyTarget]       = useState(null);
-  const [rutaPuntos, setRutaPuntos]     = useState(null);
-  const [rutaInfo, setRutaInfo]         = useState(null);
-  const [rutaLoading, setRutaLoading]   = useState(false);
-  const [fitRuta, setFitRuta]           = useState(null);
-  const [mapInst, setMapInst]           = useState(null);
-  const [hiddenCats, setHiddenCats]     = useState(new Set());
-  const [sheet, setSheet]               = useState("mid");
-  const [punts, setPunts]               = useState([]);
-  const [destinacio, setDestinacio]     = useState(null);
-  const [menuObert, setMenuObert]       = useState(false);
-  const [menuTab, setMenuTab]           = useState("categories");
+  const [geoStatus, setGeoStatus]         = useState("idle");
+  const [userPos, setUserPos]             = useState(null);
+  const [puntSel, setPuntSel]             = useState(null);
+  const [flyTarget, setFlyTarget]         = useState(null);
+  const [rutaPuntos, setRutaPuntos]       = useState(null);
+  const [rutaInfo, setRutaInfo]           = useState(null);
+  const [rutaLoading, setRutaLoading]     = useState(false);
+  const [fitRuta, setFitRuta]             = useState(null);
+  const [mapInst, setMapInst]             = useState(null);
+  const [hiddenCats, setHiddenCats]       = useState(new Set());
+  const [sheet, setSheet]                 = useState("mid");
+  const [punts, setPunts]                 = useState([]);
+  const [destinacio, setDestinacio]       = useState(null);
+  const [menuObert, setMenuObert]         = useState(false);
+  const [menuTab, setMenuTab]             = useState("categories");
   const [transportMode, setTransportMode] = useState("driving");
-  const [showParking, setShowParking]   = useState(false);
-  const [searchQuery, setSearchQuery]   = useState("");
+  const [showParking, setShowParking]     = useState(false);
+  const [searchQuery, setSearchQuery]     = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const sheetRef  = useRef(null);
   const dragStart = useRef(null);
@@ -270,7 +278,7 @@ export default function MapaCircuit() {
     setSearchResults([]);
   };
 
-  // ── Ruta (respecta mode de transport) ───────────────────────────────────
+  // ── Ruta ─────────────────────────────────────────────────────────────────
   const obtenirRuta = async (origen, desti, mode = transportMode) => {
     if (!origen || !desti) return;
     setRutaLoading(true);
@@ -298,12 +306,10 @@ export default function MapaCircuit() {
     }
   };
 
-  // Recalcula ruta quan canvia el mode de transport
   useEffect(() => {
     if (userPos && destinacio) obtenirRuta(userPos, destinacio, transportMode);
   }, [transportMode]);
 
-  // Ruta automàtica quan es selecciona destinació
   useEffect(() => {
     if (userPos && destinacio) obtenirRuta(userPos, destinacio, transportMode);
   }, [destinacio, userPos]);
@@ -312,7 +318,6 @@ export default function MapaCircuit() {
     setHiddenCats(prev => { const n = new Set(prev); n.has(cat) ? n.delete(cat) : n.add(cat); return n; });
   };
 
-  // ── Filtrar ràpid per pàrquings ──────────────────────────────────────────
   const filterParking = () => {
     const onlyParking = hiddenCats.has("parking")
       ? new Set([...hiddenCats].filter(c => c !== "parking"))
@@ -357,7 +362,7 @@ export default function MapaCircuit() {
     return (
       <div className="mc-page geo-screen">
         <div className="geo-anim">
-          {[1,2,3].map(i => <div key={i} className={`geo-ring gr-${i}`} />)}
+          {[1, 2, 3].map(i => <div key={i} className={`geo-ring gr-${i}`} />)}
           <div className="geo-icon">📍</div>
         </div>
         <p className="geo-title">Obtenint ubicació…</p>
@@ -373,14 +378,18 @@ export default function MapaCircuit() {
         <p className="geo-title">Ubicació no disponible</p>
         <p className="geo-sub">Activa-la des del navegador</p>
         <div className="geo-btns">
-          {geoStatus === "denied" && <button className="geo-btn-red" onClick={demanarUbicacio}>Tornar a intentar</button>}
-          <button className="geo-btn-ghost" onClick={() => setGeoStatus("granted")}>Continuar sense ubicació</button>
+          {geoStatus === "denied" && (
+            <button className="geo-btn-red" onClick={demanarUbicacio}>Tornar a intentar</button>
+          )}
+          <button className="geo-btn-ghost" onClick={() => setGeoStatus("granted")}>
+            Continuar sense ubicació
+          </button>
         </div>
       </div>
     );
   }
 
-  const SHEET_H = { collapsed: 88, mid: puntSel ? 280 : 130, full: 560 };
+  const SHEET_H = { collapsed: 88, mid: puntSel ? 395 : 130, full: 580 };
 
   return (
     <div className="mc-page">
@@ -395,10 +404,9 @@ export default function MapaCircuit() {
             onClick={() => setMenuObert(v => !v)}
           />
 
-          {/* Search */}
           <div className="mc-search" style={{ position: "relative" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+              <circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" />
             </svg>
             <input
               type="text"
@@ -411,21 +419,16 @@ export default function MapaCircuit() {
             )}
           </div>
 
-          {/* Botó pàrquing ràpid */}
           <button className="mc-parking-quick-btn" onClick={() => setShowParking(v => !v)} title="Pàrquings">
             🅿️
           </button>
         </div>
 
-        {/* Dropdown resultats cerca */}
         {searchResults.length > 0 && (
           <div className="mc-search-dropdown">
             {searchResults.map(p => (
               <button key={p.id} className="mc-search-result" onClick={() => selPunt(p)}>
-                <span
-                  className="mc-search-result-dot"
-                  style={{ background: CAT_META[p.categoria]?.color }}
-                />
+                <span className="mc-search-result-dot" style={{ background: CAT_META[p.categoria]?.color }} />
                 <div>
                   <div className="mc-search-result-name">{p.label}</div>
                   <div className="mc-search-result-cat">{CAT_META[p.categoria]?.label}</div>
@@ -458,7 +461,6 @@ export default function MapaCircuit() {
                 <div className="mc-drawer-content">
                   {menuTab === "categories" && (
                     <div>
-                      {/* Accés ràpid pàrquing */}
                       <button className="mc-drawer-parking-quick" onClick={filterParking}>
                         🅿️ Mostrar només pàrquings
                       </button>
@@ -541,7 +543,6 @@ export default function MapaCircuit() {
           )}
         </MapContainer>
 
-        {/* Zoom */}
         {mapInst && (
           <div className="mc-zoom">
             <button className="mc-zoom-btn" onClick={() => mapInst.zoomIn()}>+</button>
@@ -550,7 +551,6 @@ export default function MapaCircuit() {
           </div>
         )}
 
-        {/* Panel pàrquings (flotant sobre mapa) */}
         {showParking && (
           <ParkingPanel
             onClose={() => setShowParking(false)}
@@ -561,7 +561,6 @@ export default function MapaCircuit() {
           />
         )}
 
-        {/* Pill info ruta activa */}
         {rutaInfo && (
           <div className="mc-ruta-pill">
             <span>{TRANSPORT_MODES.find(m => m.id === rutaInfo.mode)?.icon}</span>
@@ -586,7 +585,7 @@ export default function MapaCircuit() {
         <div className="mc-sheet-body">
           {puntSel ? (
             <>
-              {/* Capçalera */}
+              {/* ── Capçalera ─────────────────────────────────────── */}
               <div className="mc-sheet-head">
                 <div
                   className="mc-sheet-cat-icon"
@@ -599,26 +598,43 @@ export default function MapaCircuit() {
                     {CAT_META[puntSel.categoria]?.label}
                   </div>
                 </div>
-                <button className="mc-sheet-close" onClick={() => { setPuntSel(null); setDestinacio(null); setRutaPuntos(null); setRutaInfo(null); }}>✕</button>
+                <button
+                  className="mc-sheet-close"
+                  onClick={() => { setPuntSel(null); setDestinacio(null); setRutaPuntos(null); setRutaInfo(null); }}
+                >✕</button>
               </div>
 
-              {/* Selector mode transport */}
-              <TransportSelector mode={transportMode} onChange={(m) => { setTransportMode(m); }} />
+              {/* ── Selector mode transport ───────────────────────── */}
+              <TransportSelector mode={transportMode} onChange={setTransportMode} />
 
-              {/* Meta info */}
-              <div className="mc-sheet-meta">
-                <span className="mc-meta-dot" style={{ background: rutaColor }} />
-                <span className="mc-meta-text">
-                  {rutaInfo?.temps
-                    ? `${TRANSPORT_MODES.find(m => m.id === rutaInfo.mode)?.icon} ${rutaInfo.temps} · ${rutaInfo.distancia} km`
-                    : distPuntSel
-                    ? `A ${distPuntSel} km de la teva ubicació`
-                    : "Toca 'Com arribar' per calcular la ruta"
-                  }
-                </span>
+              {/* ── Stat row (temps + distància) ──────────────────── */}
+              <div className="mc-stat-row">
+                <div className="mc-stat-card">
+                  <div className="mc-stat-icon mc-stat-icon--time">⏱</div>
+                  <div>
+                    <div className="mc-stat-label">Temps</div>
+                    <div className="mc-stat-value">
+                      {rutaInfo?.temps ?? (distPuntSel ? "—" : "—")}
+                    </div>
+                  </div>
+                </div>
+                <div className="mc-stat-card">
+                  <div className="mc-stat-icon mc-stat-icon--dist">📍</div>
+                  <div>
+                    <div className="mc-stat-label">Distància</div>
+                    <div className="mc-stat-value">
+                      {rutaInfo
+                        ? <>{rutaInfo.distancia} <span className="mc-stat-unit">km</span></>
+                        : distPuntSel
+                        ? <>{distPuntSel} <span className="mc-stat-unit">km</span></>
+                        : "—"
+                      }
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Llista sheet full */}
+              {/* ── Llista sheet full ─────────────────────────────── */}
               {sheet === "full" && (
                 <div className="mc-sheet-locs">
                   {punts.map(punt => (
@@ -646,16 +662,37 @@ export default function MapaCircuit() {
                 </div>
               )}
 
+              {/* ── CTA Botó ──────────────────────────────────────── */}
               <button
                 className="mc-btn-arribar"
-                style={{ background: rutaColor, boxShadow: `0 4px 20px ${rutaColor}55` }}
+                style={{ background: rutaColor, boxShadow: `0 4px 24px ${rutaColor}44` }}
                 onClick={() => obtenirRuta(userPos, puntSel, transportMode)}
                 disabled={rutaLoading || !userPos}
               >
-                {rutaLoading
-                  ? <><div className="mc-spin mc-spin--w" />Calculant…</>
-                  : `${TRANSPORT_MODES.find(m => m.id === transportMode)?.icon} Com arribar`
-                }
+                {rutaLoading ? (
+                  <>
+                    <div className="mc-spin mc-spin--w" />
+                    Calculant…
+                  </>
+                ) : (
+                  <>
+                    <div className="mc-btn-left">
+                      <span className="mc-btn-emoji">
+                        {TRANSPORT_MODES.find(m => m.id === transportMode)?.icon}
+                      </span>
+                      <div className="mc-btn-texts">
+                        <span className="mc-btn-main">Iniciar recorregut</span>
+                        <span className="mc-btn-sub">
+                          {rutaInfo
+                            ? `${rutaInfo.distancia} km · ${rutaInfo.temps}`
+                            : "Calcula la ruta"
+                          }
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mc-btn-arrow">→</div>
+                  </>
+                )}
               </button>
             </>
           ) : (
