@@ -1,11 +1,10 @@
 import express from "express";
-import { getEvents } from "../controllers/eventsController.js";
-import uploadEventImage from "../middleware/upload.js";
+import { getEvents, getEventById } from "../controllers/eventsController.js";
 
 const router = express.Router();
 
-// GET events
 router.get("/", getEvents);
 
+router.get("/:id", getEventById);
 
 export default router;

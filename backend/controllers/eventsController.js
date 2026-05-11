@@ -30,4 +30,16 @@ export const getEvents = async (req, res) => {
   }
 };
 
+export const getEventById = async (req, res) => {
+  try {
+    const event = await Esdeveniment.findById(req.params.id);
 
+    if (!event) {
+      return res.status(404).json({ message: "Event no trobat" });
+    }
+
+    res.json(event);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

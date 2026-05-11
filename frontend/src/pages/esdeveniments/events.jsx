@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./events.css";
 import Navbar from "../components/nav/nav.jsx";
+import { useNavigate } from "react-router-dom";
 
 const categories = [
   { id: "cursa", title: "Curses", icon: "🏁", color: "red-card" },
@@ -24,6 +25,8 @@ export default function EventsCircuit() {
   const [events, setEvents] = useState([]);
   const [filter, setFilter] = useState(null);
 
+  const navigate = useNavigate();
+
   const fetchEvents = async () => {
     const res = await fetch("http://localhost:3001/api/events");
     const data = await res.json();
@@ -40,10 +43,13 @@ export default function EventsCircuit() {
     fetchEvents();
   }, []);
 
+  const goToEvent = (id) => {
+    navigate(`/events/${id}`);
+  };
+
   const filteredEvents = filter
     ? events.filter((item) => item.categoria === filter)
     : events;
-    console.log("IMATGE:", event.imatge);
 
   const getIcon = (label = "") => {
     const t = label.toLowerCase();
@@ -82,46 +88,62 @@ export default function EventsCircuit() {
 
         {/* EVENTS LIST */}
         <section className="events-list">
-            {filteredEvents.map((event) => (
-            <div className="event-card" key={event.id}>
+          {filteredEvents.map((event) => (
+            <div
+              className="event-card"
+              key={event.id}
+              onClick={() => goToEvent(event.id)}
+              style={{ cursor: "pointer" }}
+            >
 
-                {/* IMATGE */}
-                {event.imatge && (
+              {/* IMATGE */}
+              {event.imatge && (
                 <div className="event-image-wrapper">
-                    <img
+                  <img
                     src={`http://localhost:3001${event.imatge}`}
                     alt={event.nom}
                     className="event-image"
-                    />
+                  />
                 </div>
-                )}
+              )}
 
-                <div className="event-main">
+              <div className="event-main">
 
                 <div className="event-icon">
-                    {getIcon(event.nom)}
+                  {getIcon(event.nom)}
                 </div>
 
                 <div className="event-body">
-                    <h3 className="event-name">{event.nom}</h3>
+                  <h3 className="event-name">{event.nom}</h3>
 
-                    <div className="event-details">
+                  <div className="event-details">
                     {event.descripcio && <p>📝 {event.descripcio}</p>}
                     {event.data && <p>📅 {event.data}</p>}
                     {event.hora && <p>⏱️ {event.hora}</p>}
                     {event.zona && <p>📍 {event.zona}</p>}
-                    </div>
+                  </div>
                 </div>
 
-                </div>
+              </div>
 
-                <span className="event-tag">
+              <span className="event-tag">
                 {event.categoria}
-                </span>
+              </span>
+
+              <div className="event-actions">
+                <button
+                  className="event-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToEvent(event.id);
+                  }}
+                >
+                  Accedir
+                </button>
+              </div>
 
             </div>
-            ))}
-
+          ))}
         </section>
 
       </main>

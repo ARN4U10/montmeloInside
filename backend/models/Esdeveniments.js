@@ -16,8 +16,10 @@ const EsdevenimentSchema = new Schema({
 
   nom: { type: String, required: true },
   descripcio: String,
+
   numEntrades: Number,
   preu: Number,
+
   direccio: String,
   latitud: Number,
   longitud: Number,
@@ -25,6 +27,47 @@ const EsdevenimentSchema = new Schema({
   imatge: {
     type: String,
     default: ""
+  },
+
+  data: {
+    type: String,
+    default: ""
+  },
+
+  horaInici: {
+    type: String,
+    default: ""
+  },
+
+  horaFi: {
+    type: String,
+    default: ""
+  },
+
+  durada: {
+    type: String,
+    default: ""
+  },
+
+  tipus: {
+    type: String,
+    default: ""
+  },
+
+  categoria: {
+    type: String,
+    default: ""
+  },
+
+  destacat: {
+    type: Boolean,
+    default: false
+  },
+
+  estat: {
+    type: String,
+    enum: ["actiu", "cancel·lat", "finalitzat"],
+    default: "actiu"
   }
 });
 

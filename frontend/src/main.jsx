@@ -14,6 +14,7 @@ import Serveis from "./pages/serveis/serveis.jsx";
 import Mapa from "./pages/mapa/mapa.jsx";
 import Home from "./pages/home/home.jsx";
 import Events from "./pages/esdeveniments/events.jsx";
+import EventInfo from "./pages/esdeveniments/info-event/info.jsx";
 import ForgotPassword from "./pages/forgotpassword/forgotpassword.jsx";
 
 import PrivateRoute from "./private/PrivateRoute.jsx";
@@ -38,7 +39,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/perfil-convidat" element={<PrivateRoute allowGuest><PerfilConvidat /></PrivateRoute>} />
 
           <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
-
+          <Route path="/events/:id"element={<PrivateRoute allowGuest><EventInfo /></PrivateRoute>}/>
           <Route path="*" element={<h1>404</h1>} />
         </Routes>
       </BrowserRouter>
