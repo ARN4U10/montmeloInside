@@ -27,12 +27,12 @@ input  { font-family: inherit; }
 .mc-page {
   display: flex;
   flex-direction: column;
-  width: 100vw;
-  height: 100dvh;
+  width: 100%;
+  min-height: 100dvh;
   background: var(--bg);
   font-family: 'Inter', -apple-system, sans-serif;
   color: var(--text);
-  overflow: hidden;
+  overflow-x: hidden;
   position: relative;
 }
 
@@ -110,13 +110,17 @@ input  { font-family: inherit; }
   object-fit: cover;
   cursor: pointer;
 }
+
 .mc-search {
-  flex: 1;
   display: flex;
   align-items: center;
   gap: 8px;
   height: 40px;
   padding: 0 12px;
+
+  width: 1900px;   /* 👈 aquí controlas el tamaño */
+  flex: none;     /* 👈 important */
+
   border: 1.5px solid #d0cece;
   border-radius: 12px;
   background: #f7f7f8;
@@ -130,6 +134,7 @@ input  { font-family: inherit; }
   outline: none;
   color: #222;
   font-size: 13px;
+  width: 230px !important;
 }
 .mc-search input::placeholder { color: #bbb; }
 .mc-parking-quick-btn {
@@ -142,11 +147,13 @@ input  { font-family: inherit; }
   flex-shrink: 0;
 }
 
-/* Search dropdown */
 .mc-search-dropdown {
   position: absolute;
   top: calc(var(--header-h) + 4px);
-  left: 14px; right: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 270px;
+
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
