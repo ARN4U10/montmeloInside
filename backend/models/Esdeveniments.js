@@ -20,7 +20,12 @@ const EsdevenimentSchema = new Schema({
   preu: Number,
   direccio: String,
   latitud: Number,
-  longitud: Number
+  longitud: Number,
+
+  imatge: {
+    type: String,
+    default: ""
+  }
 });
 
 export default mongoose.model("esdeveniments", EsdevenimentSchema);

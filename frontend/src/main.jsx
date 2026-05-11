@@ -13,6 +13,7 @@ import PerfilConvidat from "./pages/perfilconvidat/perfilconvidat.jsx";
 import Serveis from "./pages/serveis/serveis.jsx";
 import Mapa from "./pages/mapa/mapa.jsx";
 import Home from "./pages/home/home.jsx";
+import Events from "./pages/esdeveniments/events.jsx";
 import ForgotPassword from "./pages/forgotpassword/forgotpassword.jsx";
 
 import PrivateRoute from "./private/PrivateRoute.jsx";
@@ -33,6 +34,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/mapa" element={<PrivateRoute allowGuest><Mapa /></PrivateRoute>} />
           <Route path="/destinacio" element={<PrivateRoute allowGuest><Destinacio /></PrivateRoute>} />
           <Route path="/serveis" element={<PrivateRoute allowGuest><Serveis /></PrivateRoute>} />
+          <Route path="/events" element={<PrivateRoute allowGuest><Events /></PrivateRoute>} />
           <Route path="/perfil-convidat" element={<PrivateRoute allowGuest><PerfilConvidat /></PrivateRoute>} />
 
           <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />

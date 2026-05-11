@@ -2,34 +2,41 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// Crear carpeta si no existe
-const uploadPath = "uploads/";
+// carpeta específica per events
+const uploadPath = "uploads/events/";
+
 if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath);
+  fs.mkdirSync(uploadPath, { recursive: true });
 }
 
-// Configuración almacenamiento
+// storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadPath);
   },
+
   filename: (req, file, cb) => {
-    const uniqueName = Date.now() + "-" + file.originalname;
+    const ext = path.extname(file.originalname);
+    const uniqueName = `event-${Date.now()}${ext}`;
     cb(null, uniqueName);
-  }
+  },
 });
 
-// Filtro de archivos (solo imágenes)
+// 🔒 filtre imatges
 const fileFilter = (req, file, cb) => {
   const allowed = ["image/jpeg", "image/png", "image/webp"];
-  if (allowed.includes(file.mimetype)) cb(null, true);
-  else cb(new Error("Formato no permitido"), false);
+
+  if (allowed.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Només imatges (jpg, png, webp)"), false);
+  }
 };
 
-const upload = multer({
+const uploadEventImage = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
-export default upload;
+export default uploadEventImage;

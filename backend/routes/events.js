@@ -1,10 +1,10 @@
 import express from "express";
-import { getUbicacions } from "../controllers/ubicacionsController.js";
 import { getEvents } from "../controllers/eventsController.js";
+import uploadEventImage from "../middleware/upload.js";
 
 const router = express.Router();
 
-router.get("/", getUbicacions);
+// GET events
 router.get("/", getEvents);
 
 

@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import multer from "multer";
 import usuarisRuta from "../routes/Usuaris.js";
 import ubisRuta from "../routes/ubicacions.js";
-
+import eventsRuta from "../routes/events.js"
 import { verificarMailer } from "../utils/mailer.js";
 
 const app = express();
@@ -16,6 +16,7 @@ app.use("/uploads", express.static("uploads"));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/api/ubicacions", ubisRuta);
+app.use("/api/events", eventsRuta);
 
 mongoose.connect("mongodb://localhost:27017/montmeloInside")
   .then(() => {
