@@ -88,7 +88,7 @@ const Home = () => {
     },
   ];
 
-  const featuredServices = [
+  const featuredServices = useMemo(() => [
     {
       id: 1,
       name: "Lavabos Tribuna G",
@@ -129,7 +129,7 @@ const Home = () => {
       open: true,
       action: () => navigate("/destinacio"),
     },
-  ];
+  ], [navigate]);
 
   const liveAlerts = [
     {
@@ -218,6 +218,9 @@ const Home = () => {
         <div className="hero-content">
           <div className="hero-top-row">
             <div>
+              <div className="hero-brand">
+                <img src="/images/logo-circuit.png" alt="Circuit de Barcelona-Catalunya" />
+              </div>
               <p className="hero-greeting">
                 {greetingByHour()}, {userName} 👋
               </p>

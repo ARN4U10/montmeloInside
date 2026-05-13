@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../../components/nav/nav.jsx";
 import "./info.css";
@@ -9,7 +9,7 @@ export default function EventInfo() {
 
   const [event, setEvent] = useState(null);
 
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     try {
       const res = await fetch(`http://localhost:3001/api/events/${id}`);
       const data = await res.json();
@@ -17,7 +17,7 @@ export default function EventInfo() {
     } catch (err) {
       console.error("Error carregant event:", err);
     }
-  };
+  }, [id]);
 
 const joinEvent = async () => {
   try {
@@ -55,7 +55,7 @@ const joinEvent = async () => {
 
   useEffect(() => {
     fetchEvent();
-  }, [id]);
+  }, [fetchEvent]);
 
   if (!event) {
     return <div className="eventinfo-loading">Carregant esdeveniment...</div>;

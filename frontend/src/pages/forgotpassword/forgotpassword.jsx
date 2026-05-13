@@ -38,7 +38,7 @@ export default function ForgotPassword() {
 
       setMsg("Si el correu existeix, t'hem enviat un codi.");
       setStep(2);
-    } catch (err) {
+    } catch {
       setError("Error de connexió");
     } finally {
       setLoading(false);
@@ -68,7 +68,7 @@ export default function ForgotPassword() {
 
       setMsg("Codi verificat correctament");
       setStep(3);
-    } catch (err) {
+    } catch {
       setError("Error de connexió");
     } finally {
       setLoading(false);
@@ -108,7 +108,7 @@ export default function ForgotPassword() {
 
       setMsg("Contrasenya actualitzada correctament. Ja pots iniciar sessió.");
       setStep(4);
-    } catch (err) {
+    } catch {
       setError("Error de connexió");
     } finally {
       setLoading(false);

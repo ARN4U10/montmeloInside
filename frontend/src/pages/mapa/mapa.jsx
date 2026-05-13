@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import { useLocation } from "react-router-dom";
 import L from "leaflet";
@@ -121,19 +121,19 @@ const formatMin = (seg) => {
 // ── Map helpers ───────────────────────────────────────────────────────────
 function FlyTo({ target }) {
   const map = useMap();
-  useEffect(() => { if (target) map.flyTo(target.center, target.zoom, { duration: 1.1 }); }, [target]);
+  useEffect(() => { if (target) map.flyTo(target.center, target.zoom, { duration: 1.1 }); }, [map, target]);
   return null;
 }
 function FitRuta({ puntos }) {
   const map = useMap();
   useEffect(() => {
     if (puntos?.length > 1) map.fitBounds(L.latLngBounds(puntos), { padding: [80, 50], animate: true });
-  }, [puntos]);
+  }, [map, puntos]);
   return null;
 }
 function MapRef({ onMap }) {
   const map = useMap();
-  useEffect(() => { onMap(map); }, []);
+  useEffect(() => { onMap(map); }, [map, onMap]);
   return null;
 }
 function ClickHandler({ onSelect }) {
@@ -256,6 +256,35 @@ export default function MapaCircuit() {
     fetchPunts();
   }, []);
 
+  // ── Seleccionar punt ─────────────────────────────────────────────────────
+  const selPunt = useCallback(async (punt) => {
+    setPuntSel(punt);
+    setDestinacio(punt);
+    setRutaPuntos(null);
+    setRutaInfo(null);
+    setFitRuta(null);
+    setFlyTarget({ center: [punt.lat, punt.lng], zoom: 17 });
+    setSheet("mid");
+    setSearchQuery("");
+    setSearchResults([]);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        await fetch("http://localhost:3001/api/historial", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ lloc: punt.label }),
+        });
+      }
+    } catch (err) {
+      console.error("Error desant historial:", err);
+    }
+  }, []);
+
    // ── Selecció automàtica des de Destinacio ──────────────────────────────
   useEffect(() => {
     const puntEntrant = location.state?.puntSeleccionat;
@@ -274,7 +303,7 @@ export default function MapaCircuit() {
 
     // Neteja l'estat de navegació per evitar re-seleccions
     window.history.replaceState({}, "");
-  }, [location.state]);
+  }, [location.state, selPunt]);
 
 
 
@@ -292,38 +321,8 @@ export default function MapaCircuit() {
     );
   }, [searchQuery, punts]);
 
-// ── Seleccionar punt ─────────────────────────────────────────────────────
-const selPunt = async (punt) => {
-  setPuntSel(punt);
-  setDestinacio(punt);
-  setRutaPuntos(null);
-  setRutaInfo(null);
-  setFitRuta(null);
-  setFlyTarget({ center: [punt.lat, punt.lng], zoom: 17 });
-  setSheet("mid");
-  setSearchQuery("");
-  setSearchResults([]);
-
-  // 💾 Desa al historial_navegacio de l'usuari
-  try {
-    const token = localStorage.getItem("token");
-    if (token) {
-      await fetch("http://localhost:3001/api/historial", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ lloc: punt.label }),
-      });
-    }
-  } catch (err) {
-    console.error("Error desant historial:", err);
-  }
-};
-
   // ── Ruta ─────────────────────────────────────────────────────────────────
-  const obtenirRuta = async (origen, desti, mode = transportMode) => {
+  const obtenirRuta = useCallback(async (origen, desti, mode) => {
     if (!origen || !desti) return;
     setRutaLoading(true);
     try {
@@ -348,15 +347,11 @@ const selPunt = async (punt) => {
     } finally {
       setRutaLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (userPos && destinacio) obtenirRuta(userPos, destinacio, transportMode);
-  }, [transportMode]);
-
-  useEffect(() => {
-    if (userPos && destinacio) obtenirRuta(userPos, destinacio, transportMode);
-  }, [destinacio, userPos]);
+  }, [destinacio, obtenirRuta, transportMode, userPos]);
 
   const toggleCat = (cat) => {
     setHiddenCats(prev => { const n = new Set(prev); n.has(cat) ? n.delete(cat) : n.add(cat); return n; });

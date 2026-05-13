@@ -29,20 +29,28 @@ export default function Destinacio() {
     navigate("/mapa", {state: { puntSeleccionat: item}})
   }
 
-  const fetchUbicacions = async () => {
-    const res = await fetch("http://localhost:3001/api/ubicacions");
-    const data = await res.json();
-
-    const normalized = data.map((item) => ({
-      ...item,
-      categoria: getCategory(item.label), 
-    }));
-
-    setResults(normalized);
-  };
-
   useEffect(() => {
+    let cancelled = false;
+
+    const fetchUbicacions = async () => {
+      const res = await fetch("http://localhost:3001/api/ubicacions");
+      const data = await res.json();
+
+      const normalized = data.map((item) => ({
+        ...item,
+        categoria: getCategory(item.label),
+      }));
+
+      if (!cancelled) {
+        setResults(normalized);
+      }
+    };
+
     fetchUbicacions();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filteredResults = filter

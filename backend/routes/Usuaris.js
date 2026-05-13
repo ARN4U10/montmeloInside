@@ -1,7 +1,7 @@
 import express from "express";
 
 import { login, registre } from "../controllers/LoginRegistre.js";
-import { guardarHistorial } from "../controllers/Historial.js"; // ✅ corregit
+import { guardarHistorial } from "../controllers/historial.js";
 
 import {
   getPerfil,

@@ -27,20 +27,28 @@ export default function EventsCircuit() {
 
   const navigate = useNavigate();
 
-  const fetchEvents = async () => {
-    const res = await fetch("http://localhost:3001/api/events");
-    const data = await res.json();
-
-    const normalized = data.map((item) => ({
-      ...item,
-      categoria: getCategory(item.nom, item.tipus),
-    }));
-
-    setEvents(normalized);
-  };
-
   useEffect(() => {
+    let cancelled = false;
+
+    const fetchEvents = async () => {
+      const res = await fetch("http://localhost:3001/api/events");
+      const data = await res.json();
+
+      const normalized = data.map((item) => ({
+        ...item,
+        categoria: getCategory(item.nom, item.tipus),
+      }));
+
+      if (!cancelled) {
+        setEvents(normalized);
+      }
+    };
+
     fetchEvents();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const goToEvent = (id) => {
