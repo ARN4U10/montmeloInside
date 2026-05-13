@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./destinacio.css";
 import Navbar from "../components/nav/nav.jsx";
-
 const categories = [
   { id: "grades", title: "Grades", icon: "🏟️", color: "red-card" },
   { id: "wc", title: "Lavabos", icon: "🚻", color: "blue-card" },
@@ -23,6 +23,11 @@ const getCategory = (label = "") => {
 export default function Destinacio() {
   const [results, setResults] = useState([]);
   const [filter, setFilter] = useState(null);
+  const navigate = useNavigate();
+
+  const handleSelect = (item) => {
+    navigate("/mapa", {state: { puntSeleccionat: item}})
+  }
 
   const fetchUbicacions = async () => {
     const res = await fetch("http://localhost:3001/api/ubicacions");
@@ -83,7 +88,7 @@ export default function Destinacio() {
         <section className="results-list">
 
           {filteredResults.map((item) => (
-            <div className="result-card" key={item.id}>
+            <div onClick={() => handleSelect(item)} className="result-card" key={item.id}>
 
               <div className="result-left">
 

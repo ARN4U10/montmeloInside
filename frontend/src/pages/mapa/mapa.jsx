@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { useLocation, MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./mapa.css";
@@ -239,6 +239,7 @@ export default function MapaCircuit() {
   const [searchResults, setSearchResults] = useState([]);
   const sheetRef  = useRef(null);
   const dragStart = useRef(null);
+  const location = useLocation();
 
   // ── Fetch punts ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -253,6 +254,26 @@ export default function MapaCircuit() {
     };
     fetchPunts();
   }, []);
+
+   // ── Selecció automàtica des de Destinacio ──────────────────────────────
+  useEffect(() => {
+    const puntEntrant = location.state?.puntSeleccionat;
+    if (!puntEntrant) return;
+
+    // Normalitza el punt per assegurar que té lat/lng
+    const punt = {
+      ...puntEntrant,
+      lat: puntEntrant.lat ?? puntEntrant.latitud,
+      lng: puntEntrant.lng ?? puntEntrant.longitud,
+    };
+
+    if (!punt.lat || !punt.lng) return;
+
+    selPunt(punt);
+
+    // Neteja l'estat de navegació per evitar re-seleccions
+    window.history.replaceState({}, "");
+  }, [location.state]);
 
 
 
