@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation, MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { useLocation } from "react-router-dom";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./mapa.css";
