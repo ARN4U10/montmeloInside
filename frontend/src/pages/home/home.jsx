@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/nav/nav.jsx";
+import { apiFetch, getStoredUser, isGuest } from "../../utils/api.js";
 import "./home.css";
 
 const Home = () => {
@@ -17,8 +18,12 @@ const Home = () => {
     accessos: "Fluid",
     alertLevel: "INFO",
   });
+  const [featuredServices, setFeaturedServices] = useState([]);
+  const [nextEvent, setNextEvent] = useState(null);
 
-  const [userName] = useState("User");
+  const storedUser = getStoredUser();
+  const guest = isGuest() || storedUser?.guest;
+  const userName = guest ? "Convidat" : storedUser?.nom_complet || storedUser?.username || "User";
 
   useEffect(() => {
     const clockInterval = setInterval(() => {
@@ -88,48 +93,63 @@ const Home = () => {
     },
   ];
 
-  const featuredServices = useMemo(() => [
-    {
-      id: 1,
-      name: "Lavabos Tribuna G",
-      type: "Lavabos",
-      icon: "🚻",
-      distance: "150 m",
-      crowd: "BAIXA",
-      open: true,
-      action: () => navigate("/serveis"),
-    },
-    {
-      id: 2,
-      name: "Food Court Zone 3",
-      type: "Restauració",
-      icon: "🍴",
-      distance: "420 m",
-      crowd: "MITJANA",
-      open: true,
-      action: () => navigate("/serveis"),
-    },
-    {
-      id: 3,
-      name: "Pàrquing Nord",
-      type: "Pàrquing",
-      icon: "🅿️",
-      distance: "650 m",
-      crowd: "ALTA",
-      open: true,
-      action: () => navigate("/serveis"),
-    },
-    {
-      id: 4,
-      name: "Punt d'informació",
-      type: "Informació",
-      icon: "ℹ️",
-      distance: "200 m",
-      crowd: "BAIXA",
-      open: true,
-      action: () => navigate("/destinacio"),
-    },
-  ], [navigate]);
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadDynamicHome = async () => {
+      try {
+        const [eventsRes, serveisRes] = await Promise.all([
+          apiFetch("/events"),
+          apiFetch("/serveis"),
+        ]);
+        const [eventsData, serveisData] = await Promise.all([
+          eventsRes.json(),
+          serveisRes.json(),
+        ]);
+
+        if (cancelled) return;
+
+        if (eventsRes.ok) {
+          const activeEvents = eventsData.filter((event) => event.estat !== "finalitzat");
+          setNextEvent(activeEvents.find((event) => event.destacat) || activeEvents[0] || null);
+        }
+
+        if (serveisRes.ok) {
+          setFeaturedServices(
+            serveisData.slice(0, 4).map((servei) => ({
+              id: servei.id,
+              name: servei.nom,
+              type: servei.tipus || "Servei",
+              icon: servei.tipus === "Lavabos" ? "🚻" : servei.tipus === "Pàrquing" ? "🅿️" : "🍴",
+              distance: servei.direccio || "Al circuit",
+              crowd: servei.afluencia || "BAIXA",
+              open: true,
+              action: () => navigate("/mapa", {
+                state: {
+                  puntSeleccionat: {
+                    ...servei,
+                    label: servei.nom,
+                    categoria: servei.tipus,
+                  },
+                },
+              }),
+            }))
+          );
+        }
+      } catch {
+        if (!cancelled) {
+          setNextEvent(null);
+          setFeaturedServices([]);
+        }
+      }
+    };
+
+    loadDynamicHome();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
 
   const liveAlerts = [
     {
@@ -154,16 +174,6 @@ const Home = () => {
       level: "info",
     },
   ];
-
-  const nextEvent = {
-    title: "Formula 1 Qualifying",
-    start: "16:00",
-    end: "17:00",
-    place: "Pista principal",
-    category: "Motor",
-    spectators: "82% aforament",
-    status: "Comença aviat",
-  };
 
   const recentActivity = [
     { id: 1, label: "Has consultat el mapa del circuit", time: "fa 4 min", icon: "🗺️" },
@@ -344,24 +354,39 @@ const Home = () => {
             </button>
           </div>
 
-          <div className="event-card">
-            <div className="event-left">
-              <div className="event-badge">🏁 {nextEvent.category}</div>
-              <h3>{nextEvent.title}</h3>
-              <p className="event-place">{nextEvent.place}</p>
-              <div className="event-meta">
-                <span>⏰ {nextEvent.start} - {nextEvent.end}</span>
-                <span>🎟️ {nextEvent.spectators}</span>
+          {nextEvent ? (
+            <div className="event-card">
+              <div className="event-left">
+                <div className="event-badge">🏁 {nextEvent.categoria || nextEvent.tipus || "Motor"}</div>
+                <h3>{nextEvent.nom}</h3>
+                <p className="event-place">{nextEvent.direccio || "Circuit de Barcelona-Catalunya"}</p>
+                <div className="event-meta">
+                  <span>⏰ {nextEvent.horaInici || "Hora pendent"}{nextEvent.horaFi ? ` - ${nextEvent.horaFi}` : ""}</span>
+                  <span>🎟️ {nextEvent.placesRestants ?? nextEvent.numEntrades ?? 0} places</span>
+                </div>
+              </div>
+
+              <div className="event-right">
+                <span className="event-status">{nextEvent.estat || "Actiu"}</span>
+                <button className="primary-btn" onClick={() => navigate(`/events/${nextEvent.id}`)}>
+                  Veure event
+                </button>
               </div>
             </div>
-
-            <div className="event-right">
-              <span className="event-status">{nextEvent.status}</span>
-              <button className="primary-btn" onClick={() => navigate("/mapa")}>
-                Anar-hi
-              </button>
+          ) : (
+            <div className="event-card">
+              <div className="event-left">
+                <div className="event-badge">🏁 Events</div>
+                <h3>Cap activitat destacada</h3>
+                <p className="event-place">Quan hi hagi events actius apareixeran aquí.</p>
+              </div>
+              <div className="event-right">
+                <button className="primary-btn" onClick={() => navigate("/events")}>
+                  Veure events
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </section>
 
         <section className="section-block">
@@ -488,20 +513,23 @@ const Home = () => {
         <section className="section-block cta-panel">
           <div className="cta-content">
             <div>
-              <p className="section-kicker">Preparat per moure’t?</p>
-              <h2 className="section-title">Obre el mapa i troba la millor ruta</h2>
+              <p className="section-kicker">{guest ? "Guarda la teva experiència" : "Preparat per moure’t?"}</p>
+              <h2 className="section-title">
+                {guest ? "Crea un compte per guardar preferits i inscripcions" : "Obre el mapa i troba la millor ruta"}
+              </h2>
               <p className="cta-description">
-                Consulta accessos, zones amb menys afluència i serveis disponibles
-                al moment per arribar més ràpid on vulguis anar.
+                {guest
+                  ? "Pots continuar explorant com a convidat, però iniciar sessió et permet apuntar-te a events i desar llocs."
+                  : "Consulta accessos, zones amb menys afluència i serveis disponibles al moment per arribar més ràpid on vulguis anar."}
               </p>
             </div>
 
             <div className="cta-actions">
-              <button className="primary-btn" onClick={() => navigate("/mapa")}>
-                Obrir mapa
+              <button className="primary-btn" onClick={() => navigate(guest ? "/regist" : "/mapa")}>
+                {guest ? "Registrar-se" : "Obrir mapa"}
               </button>
-              <button className="secondary-btn" onClick={() => navigate("/destinacio")}>
-                Buscar destinació
+              <button className="secondary-btn" onClick={() => navigate(guest ? "/login" : "/destinacio")}>
+                {guest ? "Iniciar sessió" : "Buscar destinació"}
               </button>
             </div>
           </div>

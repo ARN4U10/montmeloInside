@@ -6,10 +6,6 @@ export default function Nav() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const toggleSheet = () => {
-    console.log("Abrir mapa");
-  };
-
   const isActive = (path) => location.pathname === path;
 
   const goPerfil = (e) => {
@@ -39,7 +35,7 @@ export default function Nav() {
       </a>
 
       {/* MAPA */}
-      <a href="/mapa" className={`nav-item ${isActive("/mapa") ? "active" : ""}`} onClick={toggleSheet}>
+      <a href="/mapa" className={`nav-item ${isActive("/mapa") ? "active" : ""}`}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
           <path d="M1 6V22L8 18L16 22L23 18V2L16 6L8 2L1 6Z" />
           <path d="M8 2V18" />

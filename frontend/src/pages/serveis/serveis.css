@@ -137,7 +137,7 @@ body,
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-end;
-  min-width: 92px;
+  min-width: 128px;
 }
 
 .badge {
@@ -181,6 +181,43 @@ body,
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.servei-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fav-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.fav-btn--active {
+  background: rgba(255, 18, 0, 0.18);
+  color: #ff1200;
+}
+
+.serveis-state,
+.serveis-message {
+  background: #f4f4f4;
+  color: #333;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.serveis-state--error {
+  background: #ffe9e7;
+  color: #9f160c;
 }
 
 .bottom-nav {

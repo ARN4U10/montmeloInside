@@ -1,11 +1,9 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
-import appleSignin from "apple-signin-auth";
 import Usuari from "../models/Usuaris.js";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const APPLE_CLIENT_ID = process.env.APPLE_CLIENT_ID;
 const JWT_SECRET = process.env.JWT_SECRET || "SECRET";
 
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
@@ -105,56 +103,5 @@ export const googleLogin = async (req, res) => {
   } catch (error) {
     console.error("Error googleLogin:", error);
     return res.status(500).json({ message: "Error iniciant sessió amb Google" });
-  }
-};
-
-export const appleLogin = async (req, res) => {
-  try {
-    const { identityToken } = req.body;
-
-    if (!identityToken) {
-      return res.status(400).json({ message: "Falta identityToken d'Apple" });
-    }
-
-    if (!APPLE_CLIENT_ID) {
-      return res.status(500).json({ message: "APPLE_CLIENT_ID no configurat" });
-    }
-
-    const appleData = await appleSignin.verifyIdToken(identityToken, {
-      audience: APPLE_CLIENT_ID,
-      ignoreExpiration: false,
-    });
-
-    const correu = appleData.email;
-    const appleSub = appleData.sub;
-
-    if (!correu) {
-      return res.status(400).json({
-        message:
-          "Apple no ha retornat correu. Revisa la configuració de scope email.",
-      });
-    }
-
-    let usuari = await Usuari.findOne({ correu });
-
-    if (!usuari) {
-      usuari = await crearUsuariSocial({
-        nom_complet: "Usuari Apple",
-        correu,
-        imatge_perfil: "",
-      });
-    }
-
-    const token = generarToken(usuari);
-
-    return res.json({
-      token,
-      accessToken: token,
-      appleSub,
-      user: respostaUsuari(usuari),
-    });
-  } catch (error) {
-    console.error("Error appleLogin:", error);
-    return res.status(500).json({ message: "Error iniciant sessió amb Apple" });
   }
 };

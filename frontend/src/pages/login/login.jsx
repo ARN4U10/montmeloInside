@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
+import { API_BASE_URL } from "../../utils/api.js";
 import "./login.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+const API_URL = API_BASE_URL;
 
 export default function Login() {
   const navigate = useNavigate();

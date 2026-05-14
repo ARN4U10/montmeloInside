@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../../utils/api.js";
 import "./regist.css";
 export default function Regist() {
   const [form, setForm] = useState({
@@ -26,7 +27,7 @@ const handleSubmit = async (e) => {
     return;
   }
 
-  const res = await fetch("http://localhost:3001/api/register", {
+  const res = await apiFetch("/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

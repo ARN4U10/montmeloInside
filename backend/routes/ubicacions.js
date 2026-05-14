@@ -1,11 +1,8 @@
 import express from "express";
 import { getUbicacions } from "../controllers/ubicacionsController.js";
-import { getEvents } from "../controllers/eventsController.js";
 
 const router = express.Router();
 
 router.get("/", getUbicacions);
-router.get("/", getEvents);
-
 
 export default router;

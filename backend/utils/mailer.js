@@ -5,10 +5,6 @@ const getCreds = () => {
   const user = (process.env.EMAIL_USER || "").trim();
   const pass = (process.env.EMAIL_APP_PASSWORD || "").replace(/\s+/g, "");
 
-  console.log("MAILER USER =", user);
-  console.log("MAILER PASS EXISTS =", !!pass);
-  console.log("MAILER PASS LENGTH =", pass.length);
-
   if (!user || !pass) {
     throw new Error("Falten EMAIL_USER o EMAIL_APP_PASSWORD al .env");
   }

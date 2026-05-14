@@ -5,6 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./mapa.css";
 import Navbar from "../components/nav/nav.jsx";
+import { apiFetch } from "../../utils/api.js";
 
 // ── Icones SVG per categoria ──────────────────────────────────────────────
 const ICONS_SVG = {
@@ -246,7 +247,7 @@ export default function MapaCircuit() {
   useEffect(() => {
     const fetchPunts = async () => {
       try {
-        const res  = await fetch("http://localhost:3001/api/ubicacions");
+        const res  = await apiFetch("/ubicacions");
         const data = await res.json();
         setPunts(data);
       } catch (err) {
@@ -271,10 +272,10 @@ export default function MapaCircuit() {
     try {
       const token = localStorage.getItem("token");
       if (token) {
-        await fetch("http://localhost:3001/api/historial", {
+        await apiFetch("/historial", {
           method: "POST",
+          auth: true,
           headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
           },
           body: JSON.stringify({ lloc: punt.label }),
@@ -604,7 +605,7 @@ export default function MapaCircuit() {
           <ParkingPanel
             onClose={() => setShowParking(false)}
             onSelectParking={(p) => {
-              alert(`Navegant a: ${p.label}`);
+              setSearchQuery(p.label);
               setShowParking(false);
             }}
           />

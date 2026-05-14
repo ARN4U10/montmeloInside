@@ -19,7 +19,6 @@ import {
 
 import {
   googleLogin,
-  appleLogin,
 } from "../controllers/SocialAuth.js";
 
 import upload from "../middleware/upload.js";
@@ -32,7 +31,6 @@ router.post("/register", registre);
 router.post("/login", login);
 
 router.post("/google-login", googleLogin);
-router.post("/apple-login", appleLogin);
 
 router.post("/forgot-password", solicitarRecuperacio);
 router.post("/verify-reset-code", verificarCodiRecuperacio);
