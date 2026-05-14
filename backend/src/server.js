@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import usuarisRuta from "../routes/Usuaris.js";
+import homeRuta from "../routes/home.js";
 import ubisRuta from "../routes/ubicacions.js";
 import eventsRuta from "../routes/events.js";
 import serveisRuta from "../routes/serveis.js";
@@ -20,6 +21,7 @@ app.use("/uploads", express.static("uploads"));
 
 app.use("/api/ubicacions", ubisRuta);
 app.use("/api/events", eventsRuta);
+app.use("/api/home", homeRuta);
 app.use("/api/serveis", serveisRuta);
 app.use("/api/preferits", preferitsRuta);
 
