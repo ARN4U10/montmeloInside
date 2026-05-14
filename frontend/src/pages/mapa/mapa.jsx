@@ -114,10 +114,12 @@ const distKm = (lat1, lon1, lat2, lon2) => {
 };
 
 const formatMin = (seg) => {
-  const m = Math.round(seg / 60);
-  return m < 60 ? `${m} min` : `${Math.floor(m / 60)}h ${m % 60}m`;
-};
+  const total = Math.round(seg / 60);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
 
+  return h > 0 ? `${h}h ${m} min` : `${m} min`;
+};
 // ── Map helpers ───────────────────────────────────────────────────────────
 function FlyTo({ target }) {
   const map = useMap();
@@ -240,7 +242,9 @@ export default function MapaCircuit() {
   const [searchResults, setSearchResults] = useState([]);
   const sheetRef  = useRef(null);
   const dragStart = useRef(null);
+  const routeRequestRef = useRef(0);
   const location = useLocation();
+
 
   // ── Fetch punts ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -276,6 +280,11 @@ export default function MapaCircuit() {
     window.history.replaceState({}, "");
   }, [location.state]);
 
+
+ useEffect(() => {
+  if (!userPos || !destinacio) return;
+  obtenirRuta(userPos, destinacio, transportMode);
+}, [userPos, destinacio, transportMode]);
 
 
 
@@ -322,41 +331,49 @@ const selPunt = async (punt) => {
   }
 };
 
-  // ── Ruta ─────────────────────────────────────────────────────────────────
-  const obtenirRuta = async (origen, desti, mode = transportMode) => {
-    if (!origen || !desti) return;
-    setRutaLoading(true);
-    try {
-      const osrmMode = TRANSPORT_MODES.find(m => m.id === mode)?.osrm || "driving";
-      const url = `https://router.project-osrm.org/route/v1/${osrmMode}/` +
-        `${origen[1]},${origen[0]};${desti.lng},${desti.lat}` +
-        `?overview=full&geometries=polyline`;
-      const res  = await fetch(url);
-      const data = await res.json();
-      if (data.code !== "Ok") return;
-      const route = data.routes[0];
-      const pts   = decodePolyline(route.geometry);
-      setRutaPuntos(pts);
-      setRutaInfo({
-        distancia: (route.distance / 1000).toFixed(1),
-        temps: formatMin(route.duration),
-        mode,
-      });
-      setFitRuta(pts);
-    } catch (err) {
-      console.error("Error ruta:", err);
-    } finally {
-      setRutaLoading(false);
-    }
-  };
+ const obtenirRuta = async (origen, desti, mode) => {
+  if (!origen || !desti) return;
 
-  useEffect(() => {
-    if (userPos && destinacio) obtenirRuta(userPos, destinacio, transportMode);
-  }, [transportMode]);
+  const requestId = ++routeRequestRef.current;
+  setRutaLoading(true);
 
-  useEffect(() => {
-    if (userPos && destinacio) obtenirRuta(userPos, destinacio, transportMode);
-  }, [destinacio, userPos]);
+  try {
+    const osrmMode =
+      TRANSPORT_MODES.find(m => m.id === mode)?.osrm || "driving";
+
+    const url =
+      `https://router.project-osrm.org/route/v1/${osrmMode}/` +
+      `${origen[1]},${origen[0]};${desti.lng},${desti.lat}` +
+      `?overview=full&geometries=polyline`;
+
+      
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    console.log("OSRM:", data); // 👈 DEBUG IMPORTANT
+
+    if (requestId !== routeRequestRef.current) return;
+    if (!data.routes || !data.routes.length) return;
+
+    const route = data.routes[0];
+
+    if (!route.distance || !route.duration) return;
+
+    setRutaPuntos(decodePolyline(route.geometry));
+
+    setRutaInfo({
+      distancia: (route.distance / 1000).toFixed(1),
+      temps: formatMin(route.duration),
+      mode,
+    });
+
+  } catch (err) {
+    console.error("Error ruta:", err);
+  } finally {
+    setRutaLoading(false);
+  }
+};
 
   const toggleCat = (cat) => {
     setHiddenCats(prev => { const n = new Set(prev); n.has(cat) ? n.delete(cat) : n.add(cat); return n; });
