@@ -39,11 +39,10 @@ const CAT_META = {
   wc:       { color: "#888780", label: "WC",                         iconKey: "wc"       },
 };
 
-// ── Modes de transport ────────────────────────────────────────────────────
 const TRANSPORT_MODES = [
-  { id: "driving",   label: "Cotxe",   icon: "🚗", osrm: "driving",   color: "#e63946" },
-  { id: "walking",   label: "A peu",   icon: "🚶", osrm: "foot",      color: "#1d7ef0" },
-  { id: "cycling",   label: "Bici",    icon: "🚴", osrm: "bike",      color: "#3B6D11" },
+  { id: "driving", label: "Cotxe", icon: "🚗", osrm: "driving", color: "#e63946" },
+  { id: "walking", label: "A peu", icon: "🚶", osrm: "walking", color: "#1d7ef0" },
+  { id: "cycling", label: "Bici", icon: "🚴", osrm: "cycling", color: "#3B6D11" },
 ];
 
 // ── Pàrquings propers destacats ───────────────────────────────────────────
@@ -242,12 +241,81 @@ export default function MapaCircuit() {
   const [searchResults, setSearchResults] = useState([]);
   const sheetRef  = useRef(null);
   const dragStart = useRef(null);
-  const routeRequestRef = useRef(0);
   const location = useLocation();
+  const routeRequestRef = useRef(0);
+
+
+ const SPEEDS = {
+  walking: 4.5,  // km/h real caminant (urbà)
+  cycling: 14,   // bici normal ciutat
+  driving: 28,   // cotxe ciutat amb trànsit
+};
+
+const getRealTime = (km, mode) => {
+  const speed = SPEEDS[mode] || 30;
+  const hours = km / speed;
+  return hours * 3600;
+};
+  
+const obtenirRuta = async (origen, desti, mode) => {
+  if (!origen || !desti) return;
+
+  const requestId = ++routeRequestRef.current;
+  setRutaLoading(true);
+
+  try {
+    const osrmMode =
+      TRANSPORT_MODES.find(m => m.id === mode)?.osrm || "driving";
+
+    const url =
+      `https://router.project-osrm.org/route/v1/${osrmMode}/` +
+      `${origen[1]},${origen[0]};${desti.lng},${desti.lat}` +
+      `?overview=full&geometries=polyline`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    console.log("OSRM:", data);
+
+    if (requestId !== routeRequestRef.current) return;
+    if (!data.routes || !data.routes.length) return;
+
+    // 👉 NOMÉS AQUÍ es declara route (IMPORTANT)
+    const route = data.routes[0];
+
+    const km = route.distance / 1000;
+
+    const SPEEDS = {
+      walking: 4.5,
+      cycling: 14,
+      driving: 28,
+    };
+
+    const speed = SPEEDS[mode] || 30;
+    const realSeconds = (km / speed) * 3600;
+
+    setRutaPuntos(decodePolyline(route.geometry));
+
+    setRutaInfo({
+      distancia: km.toFixed(1),
+      temps: formatMin(realSeconds),
+      mode,
+    });
+
+  } catch (err) {
+    console.error("Error ruta:", err);
+    setRutaPuntos(null);
+    setRutaInfo(null);
+  } finally {
+    setRutaLoading(false);
+  }
+};
 
 
   // ── Fetch punts ──────────────────────────────────────────────────────────
   useEffect(() => {
+    setRutaPuntos(null);
+    setRutaInfo(null);
     const fetchPunts = async () => {
       try {
         const res  = await fetch("http://localhost:3001/api/ubicacions");
@@ -283,7 +351,6 @@ export default function MapaCircuit() {
 
  useEffect(() => {
   if (!userPos || !destinacio) return;
-  obtenirRuta(userPos, destinacio, transportMode);
 }, [userPos, destinacio, transportMode]);
 
 
@@ -304,7 +371,7 @@ export default function MapaCircuit() {
 // ── Seleccionar punt ─────────────────────────────────────────────────────
 const selPunt = async (punt) => {
   setPuntSel(punt);
-  setDestinacio(punt);
+  setDestinacio({ ...punt });
   setRutaPuntos(null);
   setRutaInfo(null);
   setFitRuta(null);
@@ -328,50 +395,6 @@ const selPunt = async (punt) => {
     }
   } catch (err) {
     console.error("Error desant historial:", err);
-  }
-};
-
- const obtenirRuta = async (origen, desti, mode) => {
-  if (!origen || !desti) return;
-
-  const requestId = ++routeRequestRef.current;
-  setRutaLoading(true);
-
-  try {
-    const osrmMode =
-      TRANSPORT_MODES.find(m => m.id === mode)?.osrm || "driving";
-
-    const url =
-      `https://router.project-osrm.org/route/v1/${osrmMode}/` +
-      `${origen[1]},${origen[0]};${desti.lng},${desti.lat}` +
-      `?overview=full&geometries=polyline`;
-
-      
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    console.log("OSRM:", data); // 👈 DEBUG IMPORTANT
-
-    if (requestId !== routeRequestRef.current) return;
-    if (!data.routes || !data.routes.length) return;
-
-    const route = data.routes[0];
-
-    if (!route.distance || !route.duration) return;
-
-    setRutaPuntos(decodePolyline(route.geometry));
-
-    setRutaInfo({
-      distancia: (route.distance / 1000).toFixed(1),
-      temps: formatMin(route.duration),
-      mode,
-    });
-
-  } catch (err) {
-    console.error("Error ruta:", err);
-  } finally {
-    setRutaLoading(false);
   }
 };
 
