@@ -1,5 +1,16 @@
 import Esdeveniment from "../models/Esdeveniments.js";
 
+const findEventByAnyId = async (id) => {
+  if (/^[a-fA-F0-9]{24}$/.test(id)) {
+    const event = await Esdeveniment.findById(id);
+    if (event) return event;
+  }
+
+  return Esdeveniment.collection.findOne({
+    $or: [{ _id: id }, { id }],
+  });
+};
+
 const formatEvent = (event, userId = null) => {
   const usuaris = event.usuaris || [];
   const placesOcupades = usuaris.length;
@@ -46,17 +57,7 @@ export const getEvents = async (req, res) => {
 export const getEventById = async (req, res) => {
   try {
     const { id } = req.params;
-    let event = null;
-
-    if (/^[a-fA-F0-9]{24}$/.test(id)) {
-      event = await Esdeveniment.findById(id);
-    }
-
-    if (!event) {
-      event = await Esdeveniment.collection.findOne({
-        $or: [{ _id: id }, { id }],
-      });
-    }
+    const event = await findEventByAnyId(id);
 
     if (!event) {
       return res.status(404).json({ message: "Event no trobat" });
@@ -78,13 +79,14 @@ export const joinEvent = async (req, res) => {
       return res.status(401).json({ message: "Cal iniciar sessió per inscriure's" });
     }
 
-    const event = await Esdeveniment.findById(id);
+    const event = await findEventByAnyId(id);
 
     if (!event) {
       return res.status(404).json({ message: "Event no trobat" });
     }
 
-    const jaInscrit = event.usuaris.some((usuari) => usuari.toString() === userId);
+    const usuaris = event.usuaris || [];
+    const jaInscrit = usuaris.some((usuari) => usuari.toString() === userId);
 
     if (jaInscrit) {
       return res.json({
@@ -93,16 +95,25 @@ export const joinEvent = async (req, res) => {
       });
     }
 
-    if (event.numEntrades && event.usuaris.length >= event.numEntrades) {
+    if (event.numEntrades && usuaris.length >= event.numEntrades) {
       return res.status(400).json({ message: "No queden places disponibles" });
     }
 
-    event.usuaris.push(userId);
-    await event.save();
+    if (typeof event.save === "function") {
+      event.usuaris.push(userId);
+      await event.save();
+    } else {
+      await Esdeveniment.collection.updateOne(
+        { _id: event._id },
+        { $addToSet: { usuaris: userId } }
+      );
+    }
+
+    const updatedEvent = await findEventByAnyId(id);
 
     res.json({
       message: "Inscripció feta correctament",
-      event: formatEvent(event, userId),
+      event: formatEvent(updatedEvent, userId),
     });
   } catch (err) {
     console.error(err);

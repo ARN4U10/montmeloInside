@@ -107,7 +107,7 @@ const joinEvent = async () => {
       {/* CONTENT */}
       <div className="eventinfo-content">
 
-        <button className="back-btn" onClick={() => navigate(-1)}>
+        <button className="back-btn" onClick={() => navigate("/events")}>
           ← Tornar
         </button>
 
