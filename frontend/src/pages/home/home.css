@@ -1,6 +1,4 @@
 html, body, #root {
-  height: auto !important;
-  min-height: 430% !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
 }
@@ -10,7 +8,7 @@ html, body, #root {
 }
 
 .home-screen {
-  min-height: 100vh;
+  min-height: 425vh !important;
   height: auto;
   display: flex;
   flex-direction: column;
