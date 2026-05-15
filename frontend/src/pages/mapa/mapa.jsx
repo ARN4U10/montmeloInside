@@ -1210,7 +1210,7 @@ export default function MapaCircuit() {
           )}
         </div>
 
-        <Navbar />
+      <Navbar showCircuitLogo />
       </div>
     </div>
   );
