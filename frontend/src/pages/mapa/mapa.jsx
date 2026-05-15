@@ -43,9 +43,15 @@ const CAT_META = {
 // ── Modes de transport ────────────────────────────────────────────────────
 const TRANSPORT_MODES = [
   { id: "driving",   label: "Cotxe",   icon: "🚗", osrm: "driving",   color: "#e63946" },
-  { id: "walking",   label: "A peu",   icon: "🚶", osrm: "foot",      color: "#1d7ef0" },
-  { id: "cycling",   label: "Bici",    icon: "🚴", osrm: "bike",      color: "#3B6D11" },
+  { id: "walking",   label: "A peu",   icon: "🚶", osrm: "walking",   color: "#1d7ef0" },
+  { id: "cycling",   label: "Bici",    icon: "🚴", osrm: "cycling",   color: "#3B6D11" },
 ];
+
+const ROUTE_SPEEDS = {
+  walking: 4.5,
+  cycling: 14,
+  driving: 28,
+};
 
 // ── Pàrquings propers destacats ───────────────────────────────────────────
 const PARKING_TIPS = [
@@ -115,8 +121,16 @@ const distKm = (lat1, lon1, lat2, lon2) => {
 };
 
 const formatMin = (seg) => {
-  const m = Math.round(seg / 60);
-  return m < 60 ? `${m} min` : `${Math.floor(m / 60)}h ${m % 60}m`;
+  const total = Math.round(seg / 60);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+
+  return h > 0 ? `${h}h ${m} min` : `${m} min`;
+};
+
+const getRealRouteSeconds = (km, mode) => {
+  const speed = ROUTE_SPEEDS[mode] || 30;
+  return (km / speed) * 3600;
 };
 
 // ── Map helpers ───────────────────────────────────────────────────────────
@@ -241,6 +255,7 @@ export default function MapaCircuit() {
   const [searchResults, setSearchResults] = useState([]);
   const sheetRef  = useRef(null);
   const dragStart = useRef(null);
+  const routeRequestRef = useRef(0);
   const location = useLocation();
 
   // ── Fetch punts ──────────────────────────────────────────────────────────
@@ -325,6 +340,7 @@ export default function MapaCircuit() {
   // ── Ruta ─────────────────────────────────────────────────────────────────
   const obtenirRuta = useCallback(async (origen, desti, mode) => {
     if (!origen || !desti) return;
+    const requestId = ++routeRequestRef.current;
     setRutaLoading(true);
     try {
       const osrmMode = TRANSPORT_MODES.find(m => m.id === mode)?.osrm || "driving";
@@ -333,20 +349,24 @@ export default function MapaCircuit() {
         `?overview=full&geometries=polyline`;
       const res  = await fetch(url);
       const data = await res.json();
-      if (data.code !== "Ok") return;
+      if (requestId !== routeRequestRef.current) return;
+      if (data.code !== "Ok" || !data.routes?.length) return;
       const route = data.routes[0];
       const pts   = decodePolyline(route.geometry);
+      const km    = route.distance / 1000;
       setRutaPuntos(pts);
       setRutaInfo({
-        distancia: (route.distance / 1000).toFixed(1),
-        temps: formatMin(route.duration),
+        distancia: km.toFixed(1),
+        temps: formatMin(getRealRouteSeconds(km, mode)),
         mode,
       });
       setFitRuta(pts);
     } catch (err) {
       console.error("Error ruta:", err);
+      setRutaPuntos(null);
+      setRutaInfo(null);
     } finally {
-      setRutaLoading(false);
+      if (requestId === routeRequestRef.current) setRutaLoading(false);
     }
   }, []);
 

@@ -1,0 +1,44 @@
+[
+  {
+    "_id": "69fb5b561283fae101651688",
+    "nom": "Merchandising",
+    "latitud": 41.5732,
+    "longitud": 2.253,
+    "descripcio": "merch"
+  },
+  {
+    "_id": "69fb5b561283fae101651689",
+    "nom": "Heliport",
+    "latitud": 41.573,
+    "longitud": 2.2735,
+    "descripcio": "heli"
+  },
+  {
+    "_id": "69fb5b561283fae10165168a",
+    "nom": "WC Nord",
+    "latitud": 41.5742,
+    "longitud": 2.254,
+    "descripcio": "wc"
+  },
+  {
+    "_id": "69fb5b561283fae10165168b",
+    "nom": "WC Oest",
+    "latitud": 41.5718,
+    "longitud": 2.2505,
+    "descripcio": "wc"
+  },
+  {
+    "_id": "69fb5b561283fae10165168c",
+    "nom": "WC Paddock",
+    "latitud": 41.5695,
+    "longitud": 2.2645,
+    "descripcio": "wc"
+  },
+  {
+    "_id": "69fb5b561283fae10165168d",
+    "nom": "WC Stadium",
+    "latitud": 41.567,
+    "longitud": 2.271,
+    "descripcio": "wc"
+  }
+]
