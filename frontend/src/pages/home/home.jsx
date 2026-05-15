@@ -44,9 +44,49 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-
+  const [events, setEvents] = useState([]);
   const user = useMemo(() => getStoredUser(), []);
   const isGuest = localStorage.getItem("guest") === "true";
+
+
+  const fetchEvents = useCallback(async () => {
+  try {
+  const res = await fetch("http://localhost:3001/api/events");   
+  const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Error carregant events");
+    }
+
+    setEvents(data);
+  } catch (err) {
+    console.error("Error carregant events:", err);
+    setEvents([]);
+  }
+}, []);
+
+const upcomingEvents = useMemo(() => {
+  if (!events.length) return [];
+
+  const now = new Date();
+
+  return events
+    .map((e) => {
+      // construir data real combinant data + horaInici
+      const dateTimeString = e.data && e.horaInici
+        ? `${e.data} ${e.horaInici}`
+        : e.data;
+
+      return {
+        ...e,
+        dateObj: new Date(dateTimeString),
+      };
+    })
+    .filter((e) => !isNaN(e.dateObj) && e.dateObj >= now)
+    .sort((a, b) => a.dateObj - b.dateObj)
+    .slice(0, 2);
+}, [events]);
+
 
   const userName =
     user?.nom_complet?.trim()?.split(" ")?.[0] ||
@@ -83,22 +123,23 @@ const Home = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchDashboard();
+useEffect(() => {
+  fetchDashboard();
+  fetchEvents(); 
 
-    const clockInterval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+  const clockInterval = setInterval(() => {
+    setCurrentTime(new Date());
+  }, 1000);
 
-    const refreshInterval = setInterval(() => {
-      fetchDashboard({ silent: true });
-    }, 60000);
+  const refreshInterval = setInterval(() => {
+    fetchDashboard({ silent: true });
+  }, 60000);
 
-    return () => {
-      clearInterval(clockInterval);
-      clearInterval(refreshInterval);
-    };
-  }, [fetchDashboard]);
+  return () => {
+    clearInterval(clockInterval);
+    clearInterval(refreshInterval);
+  };
+}, [fetchDashboard, fetchEvents]);
 
   const status = dashboard?.status || DEFAULT_STATUS;
   const counters = dashboard?.counters || DEFAULT_COUNTERS;
@@ -260,6 +301,7 @@ const Home = () => {
 
   return (
     <div className="home-screen">
+         <div className="home-content">
       <section className="home-hero">
         <div className="hero-overlay" />
 
@@ -475,60 +517,104 @@ const Home = () => {
             </button>
           </div>
 
-          {loading ? (
-            <div className="home-loading-card home-loading-dark">
-              Carregant esdeveniment destacat...
-            </div>
-          ) : nextEvent ? (
-            <div className="event-card">
-              <div className="event-left">
-                <div className="event-badge">
-                  🏁 {nextEvent.category}
-                </div>
+         {loading ? (
+  <div className="home-loading-card home-loading-dark">
+    Carregant esdeveniments...
+  </div>
+) : upcomingEvents.length ? (
+  <div className="events-stack">
+    {upcomingEvents.map(ev => (
+ <div key={ev.id} className="event-card">
+  <div className="event-left">
 
-                <h3>{nextEvent.title}</h3>
-                <p className="event-place">{nextEvent.place}</p>
+    {ev.image && (
+      <div className="event-image">
+        <img
+          src={ev.image}
+          alt={ev.title}
+          className="event-img"
+        />
+      </div>
+    )}
 
-                <div className="event-meta">
-                  <span>📅 {nextEvent.date || "Data pendent"}</span>
-                  <span>
-                    ⏰ {nextEvent.start} - {nextEvent.end}
-                  </span>
-                  <span>🎟️ {nextEvent.spectators}</span>
-                </div>
-              </div>
+    <div className="event-badge">
+      🏁 {ev.nom}
+    </div>
 
-              <div className="event-right">
-                <span className="event-status">
-                  {nextEvent.status}
-                </span>
+    <h3>{ev.title}</h3>
+    <p className="event-place">{ev.place}</p>
 
-                <div className="event-actions-stack">
-                  <button
-                    className="primary-btn"
-                    onClick={() =>
-                      navigate(`/events/${nextEvent.id}`)
-                    }
-                    type="button"
-                  >
-                    Detalls
-                  </button>
+    <div className="event-meta">
+      <span>📅 {ev.data || "Data pendent"}</span>
 
-                  <button
-                    className="secondary-btn event-secondary-dark"
-                    onClick={goToEventMap}
-                    type="button"
-                  >
-                    Veure al mapa
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="home-loading-card home-loading-dark">
-              No hi ha cap esdeveniment destacat disponible ara mateix.
-            </div>
-          )}
+      <span>
+        ⏰ {ev.horaInici}
+        {ev.horaFi ? ` - ${ev.horaFi}` : ""}
+      </span>
+
+      {ev.zona && (
+        <span>📍 {ev.zona}</span>
+      )}
+
+      {ev.direccio && !ev.zona && (
+        <span>📍 {ev.direccio}</span>
+      )}
+
+      {ev.spectators && (
+        <span>🎟️ {ev.spectators}</span>
+      )}
+
+      {ev.tipus && (
+        <span>🏷️ {ev.tipus}</span>
+      )}
+    </div>
+  </div>
+
+  <div className="event-right">
+    <span className="event-status">{ev.status}</span>
+
+    <div className="event-actions-stack">
+      <button
+        className="primary-btn"
+        onClick={() => navigate(`/events/${ev.id}`)}
+        type="button"
+      >
+        Detalls
+      </button>
+
+      <button
+        className="secondary-btn event-secondary-dark"
+        onClick={() => {
+          if (ev.lat && ev.lng) {
+            navigate("/mapa", {
+              state: {
+                puntSeleccionat: {
+                  label: ev.title,
+                  sublabel: ev.place,
+                  lat: ev.lat,
+                  lng: ev.lng,
+                  categoria: "info",
+                },
+              },
+            });
+          } else {
+            navigate("/events");
+          }
+        }}
+        type="button"
+      >
+        Veure al mapa
+      </button>
+    </div>
+  </div>
+</div>
+    ))}
+  </div>
+) : (
+  <div className="home-loading-card home-loading-dark">
+    No hi ha esdeveniments propers.
+  </div>
+)}
         </section>
 
         <section className="section-block">
@@ -756,6 +842,7 @@ const Home = () => {
           </div>
         </section>
       </main>
+      </div>
 
       <Navbar showCircuitLogo />
     </div>

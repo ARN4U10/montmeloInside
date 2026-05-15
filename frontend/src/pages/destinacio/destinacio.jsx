@@ -160,7 +160,7 @@ export default function Destinacio() {
         )}
       </main>
 
-      <Navbar />
+      <Navbar showCircuitLogo />
     </div>
   );
 }

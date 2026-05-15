@@ -189,7 +189,7 @@ export default function Serveis() {
         )}
       </main>
 
-      <Navbar />
+      <Navbar showCircuitLogo />
     </div>
   );
 }

@@ -1,22 +1,27 @@
-html,
-body,
-#root {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  background: #f4f4f4;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+html, body, #root {
+  height: auto !important;
+  min-height: 430% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
-* {
-  box-sizing: border-box;
+#root {
+  display: block !important;
 }
 
 .home-screen {
   min-height: 100vh;
-  background: #f4f4f4;
-  color: #222;
-  padding-bottom: 120px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: visible !important;
+}
+
+.home-content {
+  flex: 1;
+  height: auto;
+  padding-bottom: 200px;
+  overflow: visible !important;
 }
 
 /* HERO */
@@ -353,86 +358,183 @@ body,
   line-height: 1;
 }
 
-/* EVENT */
-.event-card {
+.events-stack {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 22px;
-  padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex-direction: column;
+  gap: 16px; /* 👈 això és el que et falta */
 }
 
-.event-left h3 {
-  margin: 8px 0 8px;
-  font-size: 22px;
-  color: white;
+.event-card {
+  display: grid;
+  grid-template-columns: 120px 1fr 140px;
+  gap: 16px;
+
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 18px;
+
+  padding: 14px;
+
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: 0.2s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.10);
+}
+.event-image-wrapper {
+  width: 120px;
+  height: 120px;
+
+  border-radius: 14px;
+  overflow: hidden;
+
+  background: #f0f0f0;
+}
+
+.event-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =========================
+   MAIN AREA
+========================= */
+.event-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+
+  flex: 1;
+  min-width: 0;
+}
+
+.event-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.event-body h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a1a;
 }
 
 .event-place {
-  margin: 0 0 12px;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 14px;
+  margin: 0;
+  font-size: 13px;
+  color: #666;
 }
-
+/* BADGE */
 .event-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
+
+  padding: 5px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  font-size: 12px;
+
+  background: #f4f4f4;
+  color: #333;
+
+  font-size: 11px;
   font-weight: 700;
 }
 
+/* =========================
+   META GRID (MÉS RESPIR)
+========================= */
 .event-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  margin-top: 12px;
+  padding-top: 12px;
+
+  border-top: 1px solid #eee;
 }
 
 .event-meta span {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.88);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 12.5px;
+  color: #555;
+
+  background: #f8f8f8;
+  padding: 8px 10px;
+  border-radius: 10px;
+
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* =========================
+   RIGHT SIDE
+========================= */
 .event-right {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
   justify-content: space-between;
+  align-items: flex-end;
+
+  min-width: 110px;
   gap: 12px;
 }
 
+/* STATUS */
 .event-status {
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(226, 18, 18, 0.18);
-  color: #ffb8b8;
-  font-size: 12px;
-  font-weight: 700;
+
+  background: #fff2f2;
+  border: 1px solid #ffd1d1;
+
+  color: #e21212;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
-.primary-btn,
-.secondary-btn {
-  border: none;
-  border-radius: 999px;
-  padding: 12px 18px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
+/* ACTIONS */
+.event-actions-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
 }
 
+/* =========================
+   BUTTONS FIX
+========================= */
 .primary-btn {
   background: #e21212;
   color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .secondary-btn {
-  background: #ececec;
-  color: #2a2a2a;
+  background: #f1f1f1;
+  color: #333;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 /* ALERTS */

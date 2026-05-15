@@ -180,7 +180,7 @@ export default function EventsCircuit() {
 
       </main>
 
-      <Navbar />
+      <Navbar showCircuitLogo />
     </div>
   );
 }

@@ -400,7 +400,7 @@ export default function Perfil() {
 
         <button className="logout-btn" onClick={handleLogout}>TANCAR SESSIÓ</button>
       </main>
-      <Navbar />
+      <Navbar showCircuitLogo />
     </div>
   );
 }
