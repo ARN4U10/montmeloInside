@@ -1,6 +1,7 @@
 import Usuari from "../models/Usuaris.js";
 import Esdeveniment from "../models/Esdeveniments.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 export const getPerfil = async (req, res) => {
   try {
@@ -87,7 +88,18 @@ export const logout = async (req, res) => {
 // ── NOU: Events de l'usuari ───────────────────────────────────────────────
 export const getEsdevenimentsUsuari = async (req, res) => {
   try {
-    const events = await Esdeveniment.find({ usuaris: req.user.id });
+    const userId = req.user.id;
+    const userIds = [userId];
+
+    if (mongoose.Types.ObjectId.isValid(userId)) {
+      userIds.push(new mongoose.Types.ObjectId(userId));
+    }
+
+    const events = await Esdeveniment.collection
+      .find({ usuaris: { $in: userIds } })
+      .sort({ data: 1, horaInici: 1 })
+      .toArray();
+
     return res.json({ events });
   } catch (err) {
     console.error("Error getEsdevenimentsUsuari:", err);
