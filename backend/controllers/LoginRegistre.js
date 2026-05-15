@@ -71,8 +71,6 @@ export const registre = async (req, res) => {
 // 🔹 LOGIN
 export const login = async (req, res) => {
   try {
-    console.log("BODY LOGIN:", req.body);
-
     const { email, password } = req.body;
 
     if (!email || !password) {

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/nav/nav.jsx";
+import { API_ORIGIN, assetUrl } from "../../utils/api.js";
 import "./perfil.css";
 
-const API_URL = "http://localhost:3001";
+const API_URL = API_ORIGIN;
 
 const getToken = () =>
   localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -18,7 +19,7 @@ const clearSession = () => {
 const resolveImageSrc = (value, fallback) => {
   if (!value) return fallback;
   if (value.startsWith("blob:") || value.startsWith("http")) return value;
-  return `${API_URL}${value}`;
+  return assetUrl(value);
 };
 
 export default function Perfil() {
@@ -32,7 +33,8 @@ export default function Perfil() {
   const [bannerFile, setBannerFile] = useState(null);
   const [events, setEvents]         = useState([]);
   const [historial, setHistorial]   = useState([]);
-  const [obert, setObert]           = useState(null); // "events" | "historial" | null
+  const [preferits, setPreferits]   = useState([]);
+  const [obert, setObert]           = useState(null); // "events" | "historial" | "preferits" | null
 
   const inputAvatarRef = useRef();
   const inputBannerRef = useRef();
@@ -55,6 +57,10 @@ export default function Perfil() {
         fetch(`${API_URL}/api/perfil/historial`, {
           headers: { Authorization: `Bearer ${token}` },
         }).then(r => r.json()).then(d => setHistorial(d.historial ?? [])).catch(() => {});
+
+        fetch(`${API_URL}/api/preferits`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }).then(r => r.json()).then(d => setPreferits(d.preferits ?? [])).catch(() => {});
 
         if (res.status === 401) { clearSession(); navigate("/login", { replace: true }); return; }
 
@@ -303,6 +309,38 @@ export default function Perfil() {
                       <span className={`acord-estat acord-estat--${ev.estat?.replace("·", "")}`}>
                         {ev.estat}
                       </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* ── PREFERITS ── */}
+          <div className={`acord-item ${obert === "preferits" ? "acord-item--obert" : ""}`}>
+            <button className="profile-menu-item" onClick={() => toggleObert("preferits")}>
+              <span className="menu-left">
+                <span>★</span>
+                <span>Preferits</span>
+              </span>
+              <span className="menu-right">
+                {preferits.length > 0 && <span className="menu-badge">{preferits.length}</span>}
+                <span className={`menu-chevron ${obert === "preferits" ? "menu-chevron--obert" : ""}`}>›</span>
+              </span>
+            </button>
+
+            {obert === "preferits" && (
+              <div className="acord-body">
+                {preferits.length === 0 ? (
+                  <div className="acord-empty">
+                    <span>★</span><p>Encara no tens ubicacions preferides</p>
+                  </div>
+                ) : preferits.map((fav) => (
+                  <div key={fav.id} className="acord-hist-row">
+                    <span className="acord-hist-pin">📍</span>
+                    <div>
+                      <div className="acord-hist-lloc">{fav.ubicacio?.nom || "Ubicació"}</div>
+                      <div className="acord-hist-data">{fav.ubicacio?.direccio || fav.ubicacio?.categoria || "Preferit"}</div>
                     </div>
                   </div>
                 ))}

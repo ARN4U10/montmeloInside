@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../../components/nav/nav.jsx";
+import { apiFetch, assetUrl, getStoredUser, getToken, isGuest } from "../../../utils/api.js";
 import "./info.css";
 
 export default function EventInfo() {
@@ -8,37 +9,36 @@ export default function EventInfo() {
   const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
+  const [message, setMessage] = useState("");
+  const [joining, setJoining] = useState(false);
+  const currentUser = getStoredUser();
+  const currentUserId = currentUser?.id || currentUser?._id || localStorage.getItem("userId");
 
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     try {
-      const res = await fetch(`http://localhost:3001/api/events/${id}`);
+      const res = await apiFetch(`/events/${id}`);
       const data = await res.json();
       setEvent(data);
     } catch (err) {
       console.error("Error carregant event:", err);
     }
-  };
+  }, [id]);
 
 const joinEvent = async () => {
+  setMessage("");
+
+  if (isGuest() || !getToken()) {
+    setMessage("Inicia sessió per inscriure't a l'event.");
+    return;
+  }
+
   try {
-    const userId = localStorage.getItem("userId");
+    setJoining(true);
 
-    if (!userId || userId === "undefined") {
-      console.error("❌ No hi ha userId vàlid");
-      alert("Has d’iniciar sessió per apuntar-te a l’event");
-      return;
-    }
-
-    const res = await fetch(
-      `http://localhost:3001/api/events/${id}/join`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId }),
-      }
-    );
+    const res = await apiFetch(`/events/${id}/join`, {
+      method: "POST",
+      auth: true,
+    });
 
     const data = await res.json();
 
@@ -46,23 +46,26 @@ const joinEvent = async () => {
       throw new Error(data.message || "Error al join");
     }
 
-    console.log("✅ Joined event correctament");
-    fetchEvent(); // refresca dades
+    setEvent(data.event || data);
+    setMessage(data.message || "Inscripció feta correctament.");
   } catch (err) {
-    console.error("❌ Error joinEvent:", err.message);
+    setMessage(err.message);
+  } finally {
+    setJoining(false);
   }
 };
 
   useEffect(() => {
     fetchEvent();
-  }, [id]);
+  }, [fetchEvent]);
 
   if (!event) {
     return <div className="eventinfo-loading">Carregant esdeveniment...</div>;
   }
 
   const placesRestants =
-    event.numEntrades - (event.usuaris?.length || 0);
+    event.placesRestants ?? event.numEntrades - (event.usuaris?.length || 0);
+  const inscrit = event.inscrit || event.usuaris?.some((userId) => String(userId) === String(currentUserId));
 
   return (
     <div className="eventinfo-app">
@@ -71,7 +74,7 @@ const joinEvent = async () => {
       {event.imatge && (
         <div className="eventinfo-hero">
           <img
-            src={`http://localhost:3001${event.imatge}`}
+            src={assetUrl(event.imatge)}
             alt={event.nom}
           />
         </div>
@@ -127,8 +130,9 @@ const joinEvent = async () => {
         )}
 
         {/* BOTÓ */}
-        <button className="join-btn" onClick={joinEvent}>
-          Inscriure’m a l’event
+        {message && <div className="eventinfo-message">{message}</div>}
+        <button className="join-btn" onClick={joinEvent} disabled={joining || inscrit}>
+          {inscrit ? "Ja estàs inscrit" : joining ? "Inscrivint..." : "Inscriure’m a l’event"}
         </button>
 
       </div>

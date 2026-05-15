@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+=======
+import { useCallback, useState, useEffect, useRef } from "react";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { useLocation } from "react-router-dom";
+>>>>>>> 77020e510cee1c45bcb9b589bfc199ac800b5d26
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./mapa.css";
 import Navbar from "../components/nav/nav.jsx";
+import { apiFetch } from "../../utils/api.js";
 
 // ── Icones SVG per categoria ──────────────────────────────────────────────
 const ICONS_SVG = {
@@ -39,11 +46,26 @@ const CAT_META = {
   wc:       { color: "#888780", label: "WC",                         iconKey: "wc"       },
 };
 
+<<<<<<< HEAD
 const TRANSPORT_MODES = [
   { id: "driving", label: "Cotxe", icon: "🚗", osrm: "driving", color: "#e63946" },
   { id: "walking", label: "A peu", icon: "🚶", osrm: "walking", color: "#1d7ef0" },
   { id: "cycling", label: "Bici", icon: "🚴", osrm: "cycling", color: "#3B6D11" },
 ];
+=======
+// ── Modes de transport ────────────────────────────────────────────────────
+const TRANSPORT_MODES = [
+  { id: "driving",   label: "Cotxe",   icon: "🚗", osrm: "driving",   color: "#e63946" },
+  { id: "walking",   label: "A peu",   icon: "🚶", osrm: "walking",   color: "#1d7ef0" },
+  { id: "cycling",   label: "Bici",    icon: "🚴", osrm: "cycling",   color: "#3B6D11" },
+];
+
+const ROUTE_SPEEDS = {
+  walking: 4.5,
+  cycling: 14,
+  driving: 28,
+};
+>>>>>>> 77020e510cee1c45bcb9b589bfc199ac800b5d26
 
 // ── Pàrquings propers destacats ───────────────────────────────────────────
 const PARKING_TIPS = [
@@ -112,6 +134,12 @@ const distKm = (lat1, lon1, lat2, lon2) => {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
+<<<<<<< HEAD
+const formatMin = (seg) => {
+  const total = Math.round(seg / 60);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+=======
 const formatMin = (seg) => {
   const total = Math.round(seg / 60);
   const h = Math.floor(total / 60);
@@ -119,22 +147,31 @@ const formatMin = (seg) => {
 
   return h > 0 ? `${h}h ${m} min` : `${m} min`;
 };
+
+const getRealRouteSeconds = (km, mode) => {
+  const speed = ROUTE_SPEEDS[mode] || 30;
+  return (km / speed) * 3600;
+};
+>>>>>>> 77020e510cee1c45bcb9b589bfc199ac800b5d26
+
+  return h > 0 ? `${h}h ${m} min` : `${m} min`;
+};
 // ── Map helpers ───────────────────────────────────────────────────────────
 function FlyTo({ target }) {
   const map = useMap();
-  useEffect(() => { if (target) map.flyTo(target.center, target.zoom, { duration: 1.1 }); }, [target]);
+  useEffect(() => { if (target) map.flyTo(target.center, target.zoom, { duration: 1.1 }); }, [map, target]);
   return null;
 }
 function FitRuta({ puntos }) {
   const map = useMap();
   useEffect(() => {
     if (puntos?.length > 1) map.fitBounds(L.latLngBounds(puntos), { padding: [80, 50], animate: true });
-  }, [puntos]);
+  }, [map, puntos]);
   return null;
 }
 function MapRef({ onMap }) {
   const map = useMap();
-  useEffect(() => { onMap(map); }, []);
+  useEffect(() => { onMap(map); }, [map, onMap]);
   return null;
 }
 function ClickHandler({ onSelect }) {
@@ -238,6 +275,7 @@ export default function MapaCircuit() {
   const [transportMode, setTransportMode] = useState("driving");
   const [showParking, setShowParking]     = useState(false);
   const [searchQuery, setSearchQuery]     = useState("");
+<<<<<<< HEAD
   const [searchResults, setSearchResults] = useState([]);
   const sheetRef  = useRef(null);
   const dragStart = useRef(null);
@@ -320,12 +358,55 @@ const obtenirRuta = async (origen, desti, mode) => {
       try {
         const res  = await fetch("http://localhost:3001/api/ubicacions");
         const data = await res.json();
+=======
+  const [searchResults, setSearchResults] = useState([]);
+  const sheetRef  = useRef(null);
+  const dragStart = useRef(null);
+  const routeRequestRef = useRef(0);
+  const location = useLocation();
+
+  // ── Fetch punts ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    const fetchPunts = async () => {
+      try {
+        const res  = await apiFetch("/ubicacions");
+        const data = await res.json();
+>>>>>>> 77020e510cee1c45bcb9b589bfc199ac800b5d26
         setPunts(data);
       } catch (err) {
         console.error("Error cargando ubicacions:", err);
       }
     };
     fetchPunts();
+  }, []);
+
+  // ── Seleccionar punt ─────────────────────────────────────────────────────
+  const selPunt = useCallback(async (punt) => {
+    setPuntSel(punt);
+    setDestinacio(punt);
+    setRutaPuntos(null);
+    setRutaInfo(null);
+    setFitRuta(null);
+    setFlyTarget({ center: [punt.lat, punt.lng], zoom: 17 });
+    setSheet("mid");
+    setSearchQuery("");
+    setSearchResults([]);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        await apiFetch("/historial", {
+          method: "POST",
+          auth: true,
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ lloc: punt.label }),
+        });
+      }
+    } catch (err) {
+      console.error("Error desant historial:", err);
+    }
   }, []);
 
    // ── Selecció automàtica des de Destinacio ──────────────────────────────
@@ -346,7 +427,7 @@ const obtenirRuta = async (origen, desti, mode) => {
 
     // Neteja l'estat de navegació per evitar re-seleccions
     window.history.replaceState({}, "");
-  }, [location.state]);
+  }, [location.state, selPunt]);
 
 
  useEffect(() => {
@@ -368,6 +449,7 @@ const obtenirRuta = async (origen, desti, mode) => {
     );
   }, [searchQuery, punts]);
 
+<<<<<<< HEAD
 // ── Seleccionar punt ─────────────────────────────────────────────────────
 const selPunt = async (punt) => {
   setPuntSel(punt);
@@ -397,6 +479,44 @@ const selPunt = async (punt) => {
     console.error("Error desant historial:", err);
   }
 };
+=======
+  // ── Ruta ─────────────────────────────────────────────────────────────────
+  const obtenirRuta = useCallback(async (origen, desti, mode) => {
+    if (!origen || !desti) return;
+    const requestId = ++routeRequestRef.current;
+    setRutaLoading(true);
+    try {
+      const osrmMode = TRANSPORT_MODES.find(m => m.id === mode)?.osrm || "driving";
+      const url = `https://router.project-osrm.org/route/v1/${osrmMode}/` +
+        `${origen[1]},${origen[0]};${desti.lng},${desti.lat}` +
+        `?overview=full&geometries=polyline`;
+      const res  = await fetch(url);
+      const data = await res.json();
+      if (requestId !== routeRequestRef.current) return;
+      if (data.code !== "Ok" || !data.routes?.length) return;
+      const route = data.routes[0];
+      const pts   = decodePolyline(route.geometry);
+      const km    = route.distance / 1000;
+      setRutaPuntos(pts);
+      setRutaInfo({
+        distancia: km.toFixed(1),
+        temps: formatMin(getRealRouteSeconds(km, mode)),
+        mode,
+      });
+      setFitRuta(pts);
+    } catch (err) {
+      console.error("Error ruta:", err);
+      setRutaPuntos(null);
+      setRutaInfo(null);
+    } finally {
+      if (requestId === routeRequestRef.current) setRutaLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userPos && destinacio) obtenirRuta(userPos, destinacio, transportMode);
+  }, [destinacio, obtenirRuta, transportMode, userPos]);
+>>>>>>> 77020e510cee1c45bcb9b589bfc199ac800b5d26
 
   const toggleCat = (cat) => {
     setHiddenCats(prev => { const n = new Set(prev); n.has(cat) ? n.delete(cat) : n.add(cat); return n; });
@@ -649,7 +769,7 @@ const selPunt = async (punt) => {
           <ParkingPanel
             onClose={() => setShowParking(false)}
             onSelectParking={(p) => {
-              alert(`Navegant a: ${p.label}`);
+              setSearchQuery(p.label);
               setShowParking(false);
             }}
           />
