@@ -4,7 +4,6 @@ html, body, #root {
   background: #d9d9d9;
   font-family: Arial, sans-serif;
 }
-* { box-sizing: border-box; }
 
 .profile-screen { min-height: 100vh; background: #d9d9d9; }
 
