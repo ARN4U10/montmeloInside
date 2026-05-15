@@ -12,7 +12,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./mapa.css";
 import Navbar from "../components/nav/nav.jsx";
-import { apiFetch } from "../../utils/api.js";
+import { apiFetch, getToken, isGuest } from "../../utils/api.js";
 
 // ── Icones SVG per categoria ──────────────────────────────────────────────
 const ICONS_SVG = {
@@ -479,6 +479,8 @@ export default function MapaCircuit() {
   const [showParking, setShowParking] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [preferits, setPreferits] = useState(new Set());
+  const [preferitMessage, setPreferitMessage] = useState("");
 
   const [navegant, setNavegant] = useState(false);
   const [navigationInfo, setNavigationInfo] = useState(null);
@@ -505,6 +507,19 @@ export default function MapaCircuit() {
     fetchPunts();
   }, []);
 
+  useEffect(() => {
+    if (!getToken()) return;
+
+    apiFetch("/preferits", { auth: true })
+      .then((res) => res.json())
+      .then((data) => {
+        setPreferits(
+          new Set((data.preferits || []).map((item) => String(item.ubicacioId)))
+        );
+      })
+      .catch(() => {});
+  }, []);
+
   const stopWatchPosition = useCallback(() => {
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
@@ -518,6 +533,51 @@ export default function MapaCircuit() {
     setNavigationInfo(null);
     setSheet("mid");
   }, [stopWatchPosition]);
+
+  const getPuntId = (punt) => punt?.id || punt?._id || punt?.ubicacioId || null;
+
+  const togglePreferit = async (punt) => {
+    const id = getPuntId(punt);
+
+    if (!id) {
+      setPreferitMessage("Aquest punt no es pot guardar com a preferit.");
+      return;
+    }
+
+    if (isGuest() || !getToken()) {
+      setPreferitMessage("Inicia sessió per guardar preferits.");
+      return;
+    }
+
+    const stringId = String(id);
+    const next = new Set(preferits);
+
+    try {
+      if (next.has(stringId)) {
+        const res = await apiFetch(`/preferits/${stringId}`, {
+          method: "DELETE",
+          auth: true,
+        });
+        if (!res.ok) throw new Error("No s'ha pogut treure el preferit");
+        next.delete(stringId);
+      } else {
+        const res = await apiFetch("/preferits", {
+          method: "POST",
+          auth: true,
+          body: JSON.stringify({ ubicacioId: stringId }),
+        });
+        if (!res.ok) throw new Error("No s'ha pogut afegir el preferit");
+        next.add(stringId);
+      }
+
+      setPreferits(next);
+      setPreferitMessage(
+        next.has(stringId) ? "Afegit a preferits." : "Eliminat de preferits."
+      );
+    } catch (err) {
+      setPreferitMessage(err.message);
+    }
+  };
 
   // ── Selecció de punt ─────────────────────────────────────────────────────
   const selPunt = useCallback(
@@ -535,6 +595,7 @@ export default function MapaCircuit() {
       setSheet("mid");
       setSearchQuery("");
       setSearchResults([]);
+      setPreferitMessage("");
 
       try {
         const token = localStorage.getItem("token");
@@ -1110,6 +1171,20 @@ export default function MapaCircuit() {
                   </div>
 
                   <button
+                    className={`mc-sheet-fav ${
+                      preferits.has(String(getPuntId(puntSel))) ? "mc-sheet-fav--active" : ""
+                    }`}
+                    onClick={() => togglePreferit(puntSel)}
+                    aria-label={
+                      preferits.has(String(getPuntId(puntSel)))
+                        ? "Treure de preferits"
+                        : "Afegir a preferits"
+                    }
+                  >
+                    ★
+                  </button>
+
+                  <button
                     className="mc-sheet-close"
                     onClick={() => {
                       setPuntSel(null);
@@ -1121,6 +1196,10 @@ export default function MapaCircuit() {
                     ✕
                   </button>
                 </div>
+
+                {preferitMessage && (
+                  <div className="mc-preferit-message">{preferitMessage}</div>
+                )}
 
                 <TransportSelector
                   mode={transportMode}
