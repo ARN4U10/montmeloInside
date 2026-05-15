@@ -9,18 +9,29 @@ export default function EventInfo() {
   const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [joining, setJoining] = useState(false);
   const currentUser = getStoredUser();
   const currentUserId = currentUser?.id || currentUser?._id || localStorage.getItem("userId");
 
   const fetchEvent = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
     try {
       const res = await apiFetch(`/events/${id}`);
       const data = await res.json();
-      setEvent(data);
+      if (!res.ok) throw new Error(data.message || "No s'ha pogut carregar l'event");
+
+      setEvent(data.event || data);
     } catch (err) {
       console.error("Error carregant event:", err);
+      setError(err.message || "No s'ha pogut carregar l'event");
+      setEvent(null);
+    } finally {
+      setLoading(false);
     }
   }, [id]);
 
@@ -59,9 +70,22 @@ const joinEvent = async () => {
     fetchEvent();
   }, [fetchEvent]);
 
-  if (!event) {
+  if (loading) {
     return <div className="eventinfo-loading">Carregant esdeveniment...</div>;
   }
+
+  if (error) {
+    return (
+      <div className="eventinfo-loading">
+        <p>{error}</p>
+        <button className="back-btn" onClick={() => navigate("/events")}>
+          Tornar als events
+        </button>
+      </div>
+    );
+  }
+
+  if (!event) return null;
 
   const placesRestants =
     event.placesRestants ?? event.numEntrades - (event.usuaris?.length || 0);
@@ -90,7 +114,7 @@ const joinEvent = async () => {
         <h1 className="eventinfo-title">{event.nom}</h1>
 
         <div className="eventinfo-price">
-          💰 {event.preu} €
+          💰 {event.preu ?? 0} €
         </div>
 
         {/* INFO GRID */}
@@ -101,7 +125,7 @@ const joinEvent = async () => {
           </div>
 
           <div className="info-card">
-            📍 {event.direccio}
+            📍 {event.direccio || event.zona || "Ubicació no definida"}
           </div>
 
           <div className="info-card">

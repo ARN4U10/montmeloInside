@@ -45,7 +45,18 @@ export const getEvents = async (req, res) => {
 
 export const getEventById = async (req, res) => {
   try {
-    const event = await Esdeveniment.findById(req.params.id);
+    const { id } = req.params;
+    let event = null;
+
+    if (/^[a-fA-F0-9]{24}$/.test(id)) {
+      event = await Esdeveniment.findById(id);
+    }
+
+    if (!event) {
+      event = await Esdeveniment.collection.findOne({
+        $or: [{ _id: id }, { id }],
+      });
+    }
 
     if (!event) {
       return res.status(404).json({ message: "Event no trobat" });
