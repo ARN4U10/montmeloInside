@@ -78,7 +78,7 @@ const joinEvent = async () => {
     return (
       <div className="eventinfo-loading">
         <p>{error}</p>
-        <button className="back-btn" onClick={() => navigate("/events")}>
+        <button className="eventinfo-back-btn" onClick={() => navigate("/events")}>
           Tornar als events
         </button>
       </div>
@@ -107,7 +107,7 @@ const joinEvent = async () => {
       {/* CONTENT */}
       <div className="eventinfo-content">
 
-        <button className="back-btn" onClick={() => navigate("/events")}>
+        <button className="eventinfo-back-btn" onClick={() => navigate("/events")}>
           ← Tornar
         </button>
 
