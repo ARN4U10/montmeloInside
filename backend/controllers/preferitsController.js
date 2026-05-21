@@ -2,7 +2,10 @@ import Preferit from "../models/preferits.js";
 import Ubicacio from "../models/Ubicacions.js";
 import mongoose from "mongoose";
 
-const toId = (value) => value?.toString?.() || String(value);
+const toId = (value) => {
+  if (value === null || value === undefined) return null;
+  return value?.toString?.() || String(value);
+};
 
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -148,15 +151,18 @@ export const addPreferit = async (req, res) => {
 
 export const deletePreferit = async (req, res) => {
   try {
-    const ubicacioId = toId(req.params.ubicacioId);
+    const targetId = toId(req.params.ubicacioId);
 
-    if (!mongoose.Types.ObjectId.isValid(ubicacioId)) {
+    if (!mongoose.Types.ObjectId.isValid(targetId)) {
       return res.status(400).json({ message: "ubicacioId invàlid" });
     }
 
     const deleted = await Preferit.findOneAndDelete({
       usuari: req.user.id,
-      ubicacio: ubicacioId,
+      $or: [
+        { ubicacio: targetId },
+        { _id: targetId },
+      ],
     });
 
     if (!deleted) {
