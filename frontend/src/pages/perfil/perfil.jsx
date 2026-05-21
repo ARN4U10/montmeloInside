@@ -22,6 +22,18 @@ const resolveImageSrc = (value, fallback) => {
   return assetUrl(value);
 };
 
+const getValidPreferitId = (fav = {}) => {
+  const ids = [
+    fav.ubicacioId,
+    fav.ubicacio?._id,
+    fav.ubicacio?.id,
+    fav.id,
+    fav._id,
+  ];
+
+  return ids.find((id) => id && id !== "null" && id !== "undefined") || null;
+};
+
 export default function Perfil() {
   const navigate = useNavigate();
 
@@ -149,11 +161,7 @@ export default function Perfil() {
   };
 
   const eliminarPreferit = async (fav) => {
-    const ubicacioId =
-      fav.ubicacioId ||
-      fav.ubicacio?._id ||
-      fav.ubicacio?.id ||
-      fav._id;
+    const ubicacioId = getValidPreferitId(fav);
 
     if (!ubicacioId || eliminantPreferit) return;
 
@@ -175,7 +183,7 @@ export default function Perfil() {
 
       setPreferits(prev =>
         prev.filter(item =>
-          String(item.ubicacioId || item.ubicacio?._id || item.ubicacio?.id || item._id) !==
+          String(getValidPreferitId(item)) !==
           String(ubicacioId)
         )
       );
@@ -396,7 +404,7 @@ export default function Perfil() {
                       onClick={() => eliminarPreferit(fav)}
                       disabled={
                         eliminantPreferit ===
-                        String(fav.ubicacioId || fav.ubicacio?._id || fav.ubicacio?.id || fav._id)
+                        String(getValidPreferitId(fav))
                       }
                       aria-label="Eliminar preferit"
                       title="Eliminar preferit"
