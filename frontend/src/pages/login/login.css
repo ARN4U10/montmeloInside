@@ -189,25 +189,32 @@ html, body, #root {
 
 .lp-social {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(250px, 1fr) minmax(140px, .55fr);
+  align-items: center;
   gap: 12px;
   margin-bottom: 22px;
 }
 
 .lp-google-btn-wrap {
-  height: 46px;
+  min-height: 46px;
   background: #ffffff;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
+  padding: 1px;
 }
 
 .lp-google-btn-wrap > div {
-  width: 100% !important;
+  width: 100%;
+  min-width: 250px;
   display: flex !important;
   justify-content: center !important;
+}
+
+.lp-google-btn-wrap iframe {
+  max-width: 100% !important;
 }
 
 .lp-guest-btn {
