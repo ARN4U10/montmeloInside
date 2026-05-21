@@ -24,8 +24,10 @@ export default function Login() {
         <div className="buttons">
 
           <a
-            href="https://www.google.com/maps/dir/?api=1&destination=Circuit%20de%20Barcelona-Catalunya%2C%20Montmel%C3%B3"
+            href="https://www.google.com/maps/search/?api=1&query=Circuit%20de%20Barcelona-Catalunya%2C%20Montmel%C3%B3"
             className="btn primary"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <img
               src="/images/iconLogin.png"
