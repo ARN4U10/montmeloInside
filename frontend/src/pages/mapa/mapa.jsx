@@ -12,7 +12,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./mapa.css";
 import Navbar from "../components/nav/nav.jsx";
-import { apiFetch, getToken, isGuest } from "../../utils/api.js";
+import { apiFetch, getEntityId, getToken, isGuest, readApiError } from "../../utils/api.js";
 
 // ── Icones SVG per categoria ──────────────────────────────────────────────
 const ICONS_SVG = {
@@ -45,6 +45,65 @@ const CAT_META = {
   heli: { color: "#378ADD", label: "Heliport", iconKey: "heli" },
   bus: { color: "#639922", label: "Transport públic", iconKey: "bus" },
   wc: { color: "#888780", label: "WC", iconKey: "wc" },
+};
+
+const normalizeText = (value = "") =>
+  String(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+const normalizeCategoria = (value = "") => {
+  if (CAT_META[value]) return value;
+
+  const text = normalizeText(value);
+
+  if (text.includes("lavabo") || text.includes("wc")) return "wc";
+  if (text.includes("restaur") || text.includes("menjar") || text.includes("food")) return "food";
+  if (text.includes("parking") || text.includes("parquing") || text.includes("aparcament")) return "parking";
+  if (text.includes("access") || text.includes("acces") || text.includes("porta") || text.includes("sortida")) return "access";
+  if (text.includes("medical") || text.includes("creu roja") || text.includes("infermer")) return "medical";
+  if (text.includes("info") || text.includes("informacio")) return "info";
+  if (text.includes("merch") || text.includes("botiga")) return "merch";
+  if (text.includes("heli")) return "heli";
+  if (text.includes("bus") || text.includes("transport")) return "bus";
+  if (text.includes("tribuna") || text.includes("grada")) return "tribune";
+  if (text.includes("paddock") || text.includes("pit") || text.includes("vip")) return "paddock";
+  if (text.includes("zona")) return "zone";
+
+  return "facility";
+};
+
+const getPuntId = (punt) => getEntityId(punt);
+
+const normalizePunt = (punt = {}) => {
+  const id = getPuntId(punt);
+  const label = punt.label || punt.nom || punt.name || punt.ubicacio?.nom || "Ubicació";
+  const sublabel =
+    punt.sublabel ||
+    punt.direccio ||
+    punt.subtitle ||
+    punt.descripcio ||
+    punt.ubicacio?.direccio ||
+    "";
+  const categoria =
+    punt.categoryKey ||
+    punt.categoria ||
+    punt.tipus ||
+    punt.type ||
+    punt.descripcio ||
+    punt.ubicacio?.categoria;
+
+  return {
+    ...punt,
+    id: id ? String(id) : id,
+    _id: punt._id || id,
+    label,
+    sublabel,
+    lat: punt.lat ?? punt.latitud ?? punt.ubicacio?.lat,
+    lng: punt.lng ?? punt.longitud ?? punt.ubicacio?.lng,
+    categoria: normalizeCategoria(categoria),
+  };
 };
 
 const TRANSPORT_MODES = [
@@ -460,7 +519,7 @@ function NavigationPanel({
 
 // ══════════════════════════════════════════════════════════════════════════
 export default function MapaCircuit() {
-  const [geoStatus, setGeoStatus] = useState("idle");
+  const [geoStatus, setGeoStatus] = useState("granted");
   const [userPos, setUserPos] = useState(null);
   const [puntSel, setPuntSel] = useState(null);
   const [flyTarget, setFlyTarget] = useState(null);
@@ -498,7 +557,7 @@ export default function MapaCircuit() {
       try {
         const res = await apiFetch("/ubicacions");
         const data = await res.json();
-        setPunts(data);
+        setPunts(data.map(normalizePunt));
       } catch (err) {
         console.error("Error carregant ubicacions:", err);
       }
@@ -534,8 +593,6 @@ export default function MapaCircuit() {
     setSheet("mid");
   }, [stopWatchPosition]);
 
-  const getPuntId = (punt) => punt?.id || punt?._id || punt?.ubicacioId || null;
-
   const togglePreferit = async (punt) => {
     const id = getPuntId(punt);
 
@@ -558,15 +615,30 @@ export default function MapaCircuit() {
           method: "DELETE",
           auth: true,
         });
-        if (!res.ok) throw new Error("No s'ha pogut treure el preferit");
+        if (!res.ok) {
+          throw new Error(await readApiError(res, "No s'ha pogut treure el preferit"));
+        }
         next.delete(stringId);
       } else {
         const res = await apiFetch("/preferits", {
           method: "POST",
           auth: true,
-          body: JSON.stringify({ ubicacioId: stringId }),
+          body: JSON.stringify({
+            ubicacioId: stringId,
+            punt: {
+              id: stringId,
+              nom: punt.label,
+              label: punt.label,
+              direccio: punt.sublabel,
+              categoria: punt.categoria,
+              lat: punt.lat,
+              lng: punt.lng,
+            },
+          }),
         });
-        if (!res.ok) throw new Error("No s'ha pogut afegir el preferit");
+        if (!res.ok) {
+          throw new Error(await readApiError(res, "No s'ha pogut afegir el preferit"));
+        }
         next.add(stringId);
       }
 
@@ -586,12 +658,14 @@ export default function MapaCircuit() {
         finalitzarRecorregut();
       }
 
-      setPuntSel(punt);
-      setDestinacio(punt);
+      const normalized = normalizePunt(punt);
+
+      setPuntSel(normalized);
+      setDestinacio(normalized);
       setRutaPuntos(null);
       setRutaInfo(null);
       setFitRuta(null);
-      setFlyTarget({ center: [punt.lat, punt.lng], zoom: 17 });
+      setFlyTarget({ center: [normalized.lat, normalized.lng], zoom: 17 });
       setSheet("mid");
       setSearchQuery("");
       setSearchResults([]);
@@ -607,7 +681,7 @@ export default function MapaCircuit() {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ lloc: punt.label }),
+            body: JSON.stringify({ lloc: normalized.label }),
           });
         }
       } catch (err) {
@@ -622,17 +696,38 @@ export default function MapaCircuit() {
     const puntEntrant = location.state?.puntSeleccionat;
     if (!puntEntrant) return;
 
-    const punt = {
-      ...puntEntrant,
-      lat: puntEntrant.lat ?? puntEntrant.latitud,
-      lng: puntEntrant.lng ?? puntEntrant.longitud,
-    };
+    const normalizedEntrant = normalizePunt(puntEntrant);
+    const puntId = getPuntId(normalizedEntrant);
+    const puntTrobat = punts.find((punt) => {
+      if (puntId && String(getPuntId(punt)) === String(puntId)) return true;
 
-    if (!punt.lat || !punt.lng) return;
+      const sameCoords =
+        normalizedEntrant.lat &&
+        normalizedEntrant.lng &&
+        Math.abs(Number(punt.lat) - Number(normalizedEntrant.lat)) < 0.00001 &&
+        Math.abs(Number(punt.lng) - Number(normalizedEntrant.lng)) < 0.00001;
+
+      const sameLabel =
+        normalizeText(punt.label) &&
+        normalizeText(punt.label) === normalizeText(normalizedEntrant.label);
+
+      return sameCoords || sameLabel;
+    });
+
+    const punt = puntTrobat
+      ? {
+          ...normalizedEntrant,
+          ...puntTrobat,
+          id: getPuntId(puntTrobat),
+          _id: puntTrobat._id || getPuntId(puntTrobat),
+        }
+      : normalizedEntrant;
+
+    if (punt.lat == null || punt.lng == null) return;
 
     selPunt(punt);
     window.history.replaceState({}, "");
-  }, [location.state, selPunt]);
+  }, [location.state, punts, selPunt]);
 
   // ── Cercador ─────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -846,14 +941,12 @@ export default function MapaCircuit() {
       return;
     }
 
-    setGeoStatus("requesting");
-
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserPos([pos.coords.latitude, pos.coords.longitude]);
         setGeoStatus("granted");
       },
-      () => setGeoStatus("denied"),
+      () => setGeoStatus("granted"),
       {
         enableHighAccuracy: true,
         timeout: 12000,
@@ -902,6 +995,8 @@ export default function MapaCircuit() {
     TRANSPORT_MODES.find(
       (m) => m.id === (rutaInfo?.mode || transportMode)
     )?.color || "#e63946";
+  const puntSelId = getPuntId(puntSel);
+  const puntSelPreferit = puntSelId ? preferits.has(String(puntSelId)) : false;
 
   if (geoStatus === "idle" || geoStatus === "requesting") {
     return (
@@ -1172,13 +1267,21 @@ export default function MapaCircuit() {
 
                   <button
                     className={`mc-sheet-fav ${
-                      preferits.has(String(getPuntId(puntSel))) ? "mc-sheet-fav--active" : ""
+                      puntSelPreferit ? "mc-sheet-fav--active" : ""
                     }`}
                     onClick={() => togglePreferit(puntSel)}
+                    disabled={!puntSelId}
                     aria-label={
-                      preferits.has(String(getPuntId(puntSel)))
+                      puntSelPreferit
                         ? "Treure de preferits"
                         : "Afegir a preferits"
+                    }
+                    title={
+                      puntSelId
+                        ? puntSelPreferit
+                          ? "Treure de preferits"
+                          : "Afegir a preferits"
+                        : "Aquest punt no es pot guardar com a preferit"
                     }
                   >
                     ★

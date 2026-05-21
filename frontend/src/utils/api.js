@@ -32,6 +32,19 @@ export const apiFetch = (path, options = {}) => {
   });
 };
 
+export const getEntityId = (item = {}) =>
+  item?._id ||
+  item?.ubicacioId ||
+  item?.ubicacio?._id ||
+  item?.ubicacio?.id ||
+  item?.id ||
+  null;
+
+export const readApiError = async (res, fallback) => {
+  const data = await res.json().catch(() => ({}));
+  return data.message || fallback;
+};
+
 export const assetUrl = (value) => {
   if (!value) return "";
   if (value.startsWith("http") || value.startsWith("blob:")) return value;

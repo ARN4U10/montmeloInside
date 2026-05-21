@@ -268,6 +268,8 @@ const Home = () => {
     navigate("/mapa", {
       state: {
         puntSeleccionat: {
+          id: service.id,
+          _id: service._id || service.id,
           label: service.name,
           sublabel: service.subtitle,
           lat: service.lat,

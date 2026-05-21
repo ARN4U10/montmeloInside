@@ -15,6 +15,10 @@ const PreferitSchema = new Schema({
     required: true
   },
 
+  nom: String,
+  direccio: String,
+  categoria: String,
+
   data_afegit: { type: Date, default: Date.now }
 });
 

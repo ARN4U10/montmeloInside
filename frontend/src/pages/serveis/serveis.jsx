@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/nav/nav.jsx";
-import { apiFetch, getToken, isGuest } from "../../utils/api.js";
+import { apiFetch, getEntityId, getToken, isGuest, readApiError } from "../../utils/api.js";
 import "./serveis.css";
 
 const filters = ["Tots", "Lavabos", "Restauració", "Pàrquing"];
@@ -95,21 +95,35 @@ export default function Serveis() {
       return;
     }
 
-    const id = String(servei.id || servei._id);
+    const rawId = getEntityId(servei);
+    if (!rawId) {
+      setMessage("Aquest servei no es pot guardar com a preferit.");
+      return;
+    }
+
+    const id = String(rawId);
     const next = new Set(preferits);
 
     try {
       if (next.has(id)) {
         const res = await apiFetch(`/preferits/${id}`, { method: "DELETE", auth: true });
-        if (!res.ok) throw new Error("No s'ha pogut treure el preferit");
+        if (!res.ok) throw new Error(await readApiError(res, "No s'ha pogut treure el preferit"));
         next.delete(id);
       } else {
         const res = await apiFetch("/preferits", {
           method: "POST",
           auth: true,
-          body: JSON.stringify({ ubicacioId: id }),
+          body: JSON.stringify({
+            ubicacioId: id,
+            punt: {
+              ...servei,
+              id,
+              nom: servei.nom,
+              label: servei.nom,
+            },
+          }),
         });
-        if (!res.ok) throw new Error("No s'ha pogut afegir el preferit");
+        if (!res.ok) throw new Error(await readApiError(res, "No s'ha pogut afegir el preferit"));
         next.add(id);
       }
 
@@ -150,7 +164,8 @@ export default function Serveis() {
               <div className="serveis-state">No hi ha serveis per aquest filtre.</div>
             ) : (
               filteredServeis.map((servei) => {
-                const id = String(servei.id || servei._id);
+                const rawId = getEntityId(servei);
+                const id = rawId ? String(rawId) : servei.nom;
                 const afluencia = servei.afluencia || "BAIXA";
 
                 return (
