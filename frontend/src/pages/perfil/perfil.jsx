@@ -34,6 +34,7 @@ export default function Perfil() {
   const [events, setEvents]         = useState([]);
   const [historial, setHistorial]   = useState([]);
   const [preferits, setPreferits]   = useState([]);
+  const [eliminantPreferit, setEliminantPreferit] = useState(null);
   const [obert, setObert]           = useState(null); // "events" | "historial" | "preferits" | null
 
   const inputAvatarRef = useRef();
@@ -145,6 +146,45 @@ export default function Perfil() {
   const handleLogout = () => {
     clearSession();
     navigate("/login", { replace: true });
+  };
+
+  const eliminarPreferit = async (fav) => {
+    const ubicacioId =
+      fav.ubicacioId ||
+      fav.ubicacio?._id ||
+      fav.ubicacio?.id ||
+      fav._id;
+
+    if (!ubicacioId || eliminantPreferit) return;
+
+    try {
+      const token = getToken();
+      if (!token) { clearSession(); navigate("/login", { replace: true }); return; }
+
+      setEliminantPreferit(String(ubicacioId));
+
+      const res = await fetch(`${API_URL}/api/preferits/${ubicacioId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || "No s'ha pogut eliminar el preferit");
+      }
+
+      setPreferits(prev =>
+        prev.filter(item =>
+          String(item.ubicacioId || item.ubicacio?._id || item.ubicacio?.id || item._id) !==
+          String(ubicacioId)
+        )
+      );
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Error eliminant el preferit");
+    } finally {
+      setEliminantPreferit(null);
+    }
   };
 
   const toggleObert = (key) => setObert(prev => prev === key ? null : key);
@@ -338,10 +378,31 @@ export default function Perfil() {
                 ) : preferits.map((fav) => (
                   <div key={fav.id} className="acord-hist-row">
                     <span className="acord-hist-pin">📍</span>
-                    <div>
-                      <div className="acord-hist-lloc">{fav.ubicacio?.nom || "Ubicació"}</div>
-                      <div className="acord-hist-data">{fav.ubicacio?.direccio || fav.ubicacio?.categoria || "Preferit"}</div>
+                    <div className="acord-hist-info">
+                      <div className="acord-hist-lloc">
+                        {fav.ubicacio?.nom || fav.nom || "Ubicació"}
+                      </div>
+                      <div className="acord-hist-data">
+                        {fav.ubicacio?.direccio ||
+                          fav.direccio ||
+                          fav.ubicacio?.categoria ||
+                          fav.categoria ||
+                          "Preferit"}
+                      </div>
                     </div>
+                    <button
+                      type="button"
+                      className="acord-delete-btn"
+                      onClick={() => eliminarPreferit(fav)}
+                      disabled={
+                        eliminantPreferit ===
+                        String(fav.ubicacioId || fav.ubicacio?._id || fav.ubicacio?.id || fav._id)
+                      }
+                      aria-label="Eliminar preferit"
+                      title="Eliminar preferit"
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
               </div>
