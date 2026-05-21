@@ -197,6 +197,8 @@ const guardarSessio = (data) => {
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => alert("Login amb Google fallit")}
+              use_fedcm_for_button
+              use_fedcm_for_prompt
               theme="outline"
               size="large"
               text="signin_with"

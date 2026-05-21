@@ -23,14 +23,17 @@ export default function Login() {
 
         <div className="buttons">
 
-          <Link to="/como-llegar" className="btn primary">
+          <a
+            href="https://www.google.com/maps/dir/?api=1&destination=Circuit%20de%20Barcelona-Catalunya%2C%20Montmel%C3%B3"
+            className="btn primary"
+          >
             <img
               src="/images/iconLogin.png"
               alt="icon"
               className="btn-icon"
             />
             Com arribar-hi
-          </Link>
+          </a>
 
           <Link to="/login" className="btn secondary">
             Iniciar sessió
